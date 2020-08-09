@@ -1,0 +1,3 @@
+[submodule "external/stb_image"]
+	path = external/stb_image
+	url = https://github.com/hkva/stbimage_cmake
