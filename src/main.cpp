@@ -12,7 +12,6 @@
 #include <glm/glm.hpp>
 
 #include <tuple>
-#include <vector>
 
 // Function prototypes
 void GLAPIENTRY gl_debug_message_callback(GLenum source,
@@ -97,9 +96,12 @@ s32 main() {
   glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
   glDebugMessageCallback(gl_debug_message_callback, 0);
 
-  ScreenRenderer renderer(config::window_width, config::window_height);
-  // todo
-  renderer.set_texture_size(1024, 512);
+  ScreenRenderer renderer({ config::window_width, config::window_height });
+
+  auto file_data = util::load_file("D:\\Emulators\\pcsx2\\sstates\\eeMemory_sly2_ep3.bin");
+
+  renderer.set_texture_size({ 2048, 1440 });
+  renderer.set_data(std::move(file_data));
 
   // Set up gui
   g_gui.init(&renderer, window, "#version 460");
@@ -111,40 +113,6 @@ s32 main() {
   // renderer.init();
 
   // g_gui.set_renderer(&renderer);
-
-  constexpr u32 width = 1024;
-  constexpr u32 height = 512;
-
-  static std::vector<u32> data_fb(width * height);
-
-#if 0
-  for (u32 y = 0; y < height; ++y) {
-    for (u32 x = 0; x < width; ++x) {
-      const u8 r = f32(y) / height * 255;
-      const u8 g = f32(x) / width * 255;
-      // const u8 r = (y % 32) * 8;
-      // const u8 g = (x % 32) * 8;
-      // const u8 b = 0x00;
-      const u8 a = 0xFF;
-
-      const auto idx = y * width + x;
-
-      data_fb[idx] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
-    }
-  }
-#endif
-
-  const auto file_data = util::load_file("D:\\Emulators\\pcsx2\\sstates\\eeMemory_sly2_ep3.bin");
-
-  for (u32 i = 0; i < width * height; ++i) {
-    const u8 val = file_data[i];
-    const u8 r = val;
-    const u8 g = val;
-    const u8 b = val;
-    const u8 a = 0xFF;
-
-    data_fb[i] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
-  }
 
   // Game loop
   while (!glfwWindowShouldClose(window)) {
@@ -158,7 +126,7 @@ s32 main() {
     g_gui.draw_ui();
 
     // renderer.update();
-    renderer.render(data_fb.data());
+    renderer.render();
 
     g_gui.frame_end();
 

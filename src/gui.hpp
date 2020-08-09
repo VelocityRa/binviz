@@ -5,6 +5,8 @@
 class ScreenRenderer;
 struct GLFWwindow;
 
+#include <vector>
+
 class Gui {
  public:
   void init(ScreenRenderer* renderer, GLFWwindow* window, const char* glsl_version);

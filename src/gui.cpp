@@ -1,5 +1,6 @@
 #include <gui.hpp>
 
+#include <screen_renderer.hpp>
 #include <util/types.hpp>
 
 #include <imgui.h>
@@ -46,6 +47,19 @@ void Gui::draw_ui() {
   // ImGui::ShowDemoWindow();
 
   // Renderer window
+  if (ImGui::Begin("Controls")) {
+    const auto cur_size = renderer->m_texture_size;
+
+    s32 new_x = cur_size.x;
+    if (ImGui::SliderInt("Width", &new_x, 1, 2560)) {
+      renderer->set_texture_size({ new_x, renderer->m_texture_size.y });
+    }
+    s32 new_y = cur_size.y;
+    if (ImGui::SliderInt("Height", &new_y, 1, 1440)) {
+      renderer->set_texture_size({ renderer->m_texture_size.x, new_y });
+    }
+  }
+  ImGui::End();
 
   // Performance window
   // TODO
