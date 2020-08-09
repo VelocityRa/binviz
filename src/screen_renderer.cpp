@@ -50,6 +50,8 @@ ScreenRenderer::ScreenRenderer(glm::uvec2 viewport_size) : m_viewport_size(viewp
   m_u_tex_size = glGetUniformLocation(m_shader_program_screen, "u_tex_size");
 
   glBindVertexArray(0);
+
+  is_screen_quad_updated = true;
 }
 
 void ScreenRenderer::calc_and_upload_screen_quad() {
@@ -100,6 +102,9 @@ void ScreenRenderer::render() {
   glUseProgram(m_shader_program_screen);
   bind_screen_texture();
 
+  if (!is_screen_quad_updated)
+    calc_and_upload_screen_quad();
+
   // Update texture
   if (!is_texture_updated)
     update_texture();
@@ -118,31 +123,43 @@ void ScreenRenderer::render() {
 void ScreenRenderer::set_texture_size(glm::ivec2 texture_size) {
   bind_screen_texture();
 
+  // texture_size.y = m_data.size() / texture_size.x;
+  // texture_size.y = 14400;
+
   // If screen texture dimensions changed
   if (texture_size != m_texture_size) {
     // Configure texture
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_size.x, texture_size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     m_texture_size = texture_size;
 
-    calc_and_upload_screen_quad();
+    is_screen_quad_updated = false;
   }
+
+  is_texture_updated = false;
+}
+
+void ScreenRenderer::set_offset(u64 offset) {
+  m_texture_data_offset = offset;
 
   is_texture_updated = false;
 }
 
 void ScreenRenderer::set_data(buffer&& data) {
   m_data = std::move(data);
-  update_texture();
+
+  is_texture_updated = false;
 }
 
 void ScreenRenderer::set_viewport_size(glm::uvec2 viewport_size) {
   m_viewport_size = viewport_size;
+
+  is_screen_quad_updated = false;
 }
 
 void ScreenRenderer::change_scale(float scale_mult) {
   m_scale *= scale_mult;
 
-  calc_and_upload_screen_quad();
+  is_screen_quad_updated = false;
 }
 
 void ScreenRenderer::update_texture() {
@@ -167,7 +184,7 @@ void ScreenRenderer::update_texture() {
 #endif
 
   for (u32 i = 0; i < count; ++i) {
-    const u8 val = m_data[i];
+    const u8 val = m_data[m_texture_data_offset + i];
     const u8 r = val;
     const u8 g = val;
     const u8 b = val;
@@ -183,7 +200,7 @@ void ScreenRenderer::update_texture() {
 void ScreenRenderer::change_pos(glm::vec2 pos_delta) {
   m_screen_pos += pos_delta * m_scale;
 
-  calc_and_upload_screen_quad();
+  is_screen_quad_updated = false;
 }
 
 void ScreenRenderer::bind_screen_texture() const {

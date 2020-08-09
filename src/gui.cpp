@@ -52,11 +52,16 @@ void Gui::draw_ui() {
 
     s32 new_x = cur_size.x;
     if (ImGui::SliderInt("Width", &new_x, 1, 2560)) {
-      renderer->set_texture_size({ new_x, renderer->m_texture_size.y });
+      renderer->set_texture_size({ new_x, cur_size.y });
     }
     s32 new_y = cur_size.y;
     if (ImGui::SliderInt("Height", &new_y, 1, 1440)) {
-      renderer->set_texture_size({ renderer->m_texture_size.x, new_y });
+      renderer->set_texture_size({ cur_size.x, new_y });
+    }
+    s32 offset = renderer->m_texture_data_offset;
+    if (ImGui::InputInt("Offset", &offset, 1, cur_size.x)) {
+      if (offset >= 0)
+        renderer->set_offset(offset);
     }
   }
   ImGui::End();

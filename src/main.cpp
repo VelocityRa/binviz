@@ -31,7 +31,7 @@ namespace config {
 
 constexpr char* window_title = "BinViz v0.1";
 constexpr u32 window_width = 1920;
-constexpr u32 window_height = 1080;
+constexpr u32 window_height = 1080 - 100;
 constexpr bool window_fullscreen = false;  // border-less
 constexpr bool vsync = true;
 
@@ -100,8 +100,8 @@ s32 main() {
 
   auto file_data = util::load_file("D:\\Emulators\\pcsx2\\sstates\\eeMemory_sly2_ep3.bin");
 
-  renderer.set_texture_size({ 2048, 1440 });
   renderer.set_data(std::move(file_data));
+  renderer.set_texture_size({ 1024, 1440 });
 
   // Set up gui
   g_gui.init(&renderer, window, "#version 460");
