@@ -13,7 +13,9 @@ class ScreenRenderer {
   void render(const void* vram_data) const;
   void bind_screen_texture() const;
   void set_texture_size(s32 width, s32 height);
-  void move_pos(glm::vec2 delta);
+
+  void change_pos(glm::vec2 pos_delta);
+  void change_scale(float scale_delta);
 
  private:
   void calc_and_upload_screen_quad();
@@ -24,7 +26,7 @@ class ScreenRenderer {
 
   glm::vec2 m_screen_pos{};
 
-  float m_zoom{ 1.0 };
+  float m_scale{ 0.5 };
 
   // Shaders
   GLuint m_shader_program_screen{};

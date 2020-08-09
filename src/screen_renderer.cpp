@@ -54,13 +54,10 @@ ScreenRenderer::ScreenRenderer(s32 width, s32 height) : m_screen_width(width), m
 void ScreenRenderer::calc_and_upload_screen_quad() {
   glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-  // todo
-  glm::uvec2 scale(m_screen_width * m_zoom, m_screen_height * m_zoom);
-
   s32 left_px = m_screen_pos.x;
-  s32 right_px = left_px + scale.x;
+  s32 right_px = left_px + m_screen_width;
   s32 bottom_px = m_screen_height - m_screen_pos.y;
-  s32 top_px = bottom_px - scale.y;
+  s32 top_px = bottom_px - m_screen_height;
 
   // [0, 1] to [-1, 1]
   auto to_clip_space = [](float coord) -> float { return coord * 2.0 - 1.0; };
@@ -69,6 +66,9 @@ void ScreenRenderer::calc_and_upload_screen_quad() {
   // float right = to_clip_space(right_px / 512);
   // float top = to_clip_space(top_px / 512);
   // float bottom = to_clip_space(bottom_px / 512);
+
+  // todo
+  glm::uvec2 scale(m_screen_width * m_scale, m_screen_height * m_scale);
 
   float left = to_clip_space(f32(left_px) / scale.x);
   float right = to_clip_space(f32(right_px) / scale.x);
@@ -118,8 +118,14 @@ void ScreenRenderer::set_texture_size(s32 width, s32 height) {
   }
 }
 
-void ScreenRenderer::move_pos(glm::vec2 delta) {
-  m_screen_pos += delta;
+void ScreenRenderer::change_scale(float scale_delta) {
+  m_scale += scale_delta;
+
+  calc_and_upload_screen_quad();
+}
+
+void ScreenRenderer::change_pos(glm::vec2 pos_delta) {
+  m_screen_pos += pos_delta * m_scale;
 
   calc_and_upload_screen_quad();
 }

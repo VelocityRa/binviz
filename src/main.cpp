@@ -25,6 +25,7 @@ void glfw_error_callback(s32 error, const char* description);
 void glfw_key_callback(GLFWwindow* window, s32 key, s32 scancode, s32 action, s32 mode);
 void glfw_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void glfw_cursor_position_callback(GLFWwindow* window, f64 xpos, f64 ypos);
+void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 namespace config {
 
@@ -81,6 +82,7 @@ s32 main() {
   glfwSetKeyCallback(window, glfw_key_callback);
   glfwSetMouseButtonCallback(window, glfw_mouse_button_callback);
   glfwSetCursorPosCallback(window, glfw_cursor_position_callback);
+  glfwSetScrollCallback(window, glfw_scroll_callback);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     LOG_ERROR("Failed to initialize OpenGL context");
@@ -192,9 +194,18 @@ void glfw_cursor_position_callback(GLFWwindow* window, f64 mouse_x, f64 mouse_y)
     glm::vec2 mouse_pos(mouse_x, mouse_y);
     glm::vec2 delta_pos = mouse_pos - g_gui.prev_pos;
 
-    g_gui.renderer->move_pos(delta_pos);
+    g_gui.renderer->change_pos(delta_pos);
     g_gui.prev_pos = mouse_pos;
   }
+}
+
+void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    float scale_delta = 0.2;
+
+    if (yoffset > 0.0)
+        scale_delta *= -1.0;
+
+    g_gui.renderer->change_scale(scale_delta);
 }
 
 void glfw_error_callback(s32 error, const char* description) {
