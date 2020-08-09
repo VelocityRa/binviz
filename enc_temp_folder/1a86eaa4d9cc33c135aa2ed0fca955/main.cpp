@@ -137,13 +137,13 @@ s32 main() {
   const auto file_data = util::load_file("D:\\Emulators\\pcsx2\\sstates\\eeMemory_sly2_ep3.bin");
 
   for (u32 i = 0; i < width * height; ++i) {
-    const u8 val = file_data[i];
-    const u8 r = val;
-    const u8 g = val;
-    const u8 b = val;
-    const u8 a = 0xFF;
+      const u8 val = file_data[i];
+      const u8 r = val;
+      const u8 g = val;
+      const u8 b = val;
+      const u8 a = 0xFF;
 
-    data_fb[i] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+      data_fb[i] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
   }
 
   // Game loop

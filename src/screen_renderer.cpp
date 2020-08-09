@@ -87,6 +87,7 @@ void ScreenRenderer::calc_and_upload_screen_quad() {
 }
 
 void ScreenRenderer::render(const void* vram_data) const {
+  glClearColor(0.1, 0.1, 0.1, 1.0);
   glClear(GL_COLOR_BUFFER_BIT);
 
   // Bind needed state
@@ -118,8 +119,8 @@ void ScreenRenderer::set_texture_size(s32 width, s32 height) {
   }
 }
 
-void ScreenRenderer::change_scale(float scale_delta) {
-  m_scale += scale_delta;
+void ScreenRenderer::change_scale(float scale_mult) {
+  m_scale *= scale_mult;
 
   calc_and_upload_screen_quad();
 }

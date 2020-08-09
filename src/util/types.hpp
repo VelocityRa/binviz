@@ -18,4 +18,3 @@ using f64 = double;
 
 using byte = u8;
 using buffer = std::vector<byte>;
-using address = u32;  // Guest address

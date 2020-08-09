@@ -15,7 +15,7 @@ class ScreenRenderer {
   void set_texture_size(s32 width, s32 height);
 
   void change_pos(glm::vec2 pos_delta);
-  void change_scale(float scale_delta);
+  void change_scale(float scale_mult);
 
  private:
   void calc_and_upload_screen_quad();
@@ -26,7 +26,7 @@ class ScreenRenderer {
 
   glm::vec2 m_screen_pos{};
 
-  float m_scale{ 0.5 };
+  float m_scale{ 1.0 };
 
   // Shaders
   GLuint m_shader_program_screen{};
