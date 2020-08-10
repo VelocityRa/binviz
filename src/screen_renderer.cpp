@@ -121,21 +121,20 @@ void ScreenRenderer::render() {
 }
 
 void ScreenRenderer::set_texture_size(glm::ivec2 texture_size) {
-  bind_screen_texture();
-
   // texture_size.y = m_data.size() / texture_size.x;
   // texture_size.y = 14400;
 
   // If screen texture dimensions changed
   if (texture_size != m_texture_size) {
+    bind_screen_texture();
+
     // Configure texture
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_size.x, texture_size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     m_texture_size = texture_size;
 
     is_screen_quad_updated = false;
+    is_texture_updated = false;
   }
-
-  is_texture_updated = false;
 }
 
 void ScreenRenderer::set_offset(u64 offset) {
