@@ -59,18 +59,16 @@ void Renderer::calc_and_upload_screen_quad() {
   const float bottom_px = m_texture_size.y - m_screen_pos.y;
   const float top_px = bottom_px - m_texture_size.y;
 
+  float ratio_x = float(m_texture_size.x) / m_viewport_size.x;
+  float ratio_y = float(m_texture_size.y) / m_viewport_size.y;
+
   // [0, 1] to [-1, 1]
   auto to_clip_space = [](float coord) -> float { return coord * 2.0 - 1.0; };
 
-  const bool asp_correct_y = (m_texture_size.x > m_viewport_size.x);
-
-  float ratio_x = (asp_correct_y ? 1.0 : float(m_texture_size.x) / m_viewport_size.x) / m_scale;
-  float ratio_y = (asp_correct_y ? float(m_texture_size.y) / m_viewport_size.y : 1.0) / m_scale;
-
-  float left_cs = to_clip_space(left_px / m_texture_size.x * ratio_x);
-  float right_cs = to_clip_space(right_px / m_texture_size.x * ratio_x);
-  float top_cs = to_clip_space(top_px / m_texture_size.y * ratio_y);
-  float bottom_cs = to_clip_space(bottom_px / m_texture_size.y * ratio_y);
+  float left_cs = to_clip_space(left_px / m_texture_size.x * ratio_x) / m_scale;
+  float right_cs = to_clip_space(right_px / m_texture_size.x * ratio_x) / m_scale;
+  float top_cs = to_clip_space(top_px / m_texture_size.y * ratio_y) / m_scale;
+  float bottom_cs = to_clip_space(bottom_px / m_texture_size.y * ratio_y) / m_scale;
 
   const float vertices[] = {
     // Position Texcoords
