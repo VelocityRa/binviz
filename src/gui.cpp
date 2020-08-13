@@ -1,6 +1,6 @@
 #include <gui.hpp>
 
-#include <screen_renderer.hpp>
+#include <renderer.hpp>
 #include <util/types.hpp>
 
 #include <imgui.h>
@@ -38,7 +38,7 @@ bool ListBox(const char* label, int* currIndex, std::vector<std::string>& values
 
 }  // namespace ImGui
 
-void Gui::init(ScreenRenderer* _renderer, GLFWwindow* window, const char* glsl_version) {
+void Gui::init(Renderer* _renderer, GLFWwindow* window, const char* glsl_version) {
   renderer = _renderer;
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
@@ -78,7 +78,8 @@ void Gui::draw_ui() {
   // ImGui::ShowDemoWindow();
 
   // Renderer window
-  if (ImGui::Begin("Controls")) {
+  bool open_dummy{};
+  if (ImGui::Begin("Controls", &open_dummy, ImGuiWindowFlags_AlwaysAutoResize)) {
     const auto cur_size = renderer->m_texture_size;
 
     s32 new_x = cur_size.x;
@@ -112,24 +113,29 @@ void Gui::draw_ui() {
     }
     ImGui::SameLine();
     if (ImGui::Button("PgUp")) {
-      offset = std::max(0, offset - cur_size.x * cur_size.y);
-
-      renderer->set_offset(offset);
+      renderer->set_offset(offset - cur_size.x * cur_size.y);
     }
     ImGui::SameLine();
     if (ImGui::Button("PgDown")) {
-      offset = std::min(size_t(offset + cur_size.x * cur_size.y), data_size);
-
-      renderer->set_offset(offset);
+      renderer->set_offset(offset + cur_size.x * cur_size.y);
     }
 
     ImGui::Separator();
 
-    if (ImGui::DragFloat("Scale", &renderer->m_scale, 0.01f, 0.0f, 5.0f)) {
+    if (ImGui::DragFloat2("Position", (float*)&renderer->m_screen_pos, 0.01f, 0.0f, 5.0f)) {
+      renderer->is_screen_quad_updated = false;
+    }
+    // todo Reset button
+
+    if (ImGui::DragFloat("Scale", &renderer->m_scale, 0.001f, 0.0f, 5.0f)) {
       renderer->is_screen_quad_updated = false;
     }
   }
   ImGui::End();
+
+  //if (ImGui::Begin("View")) {
+  //}
+  //ImGui::End();
 
   bool open{};
   // if (ImGui::Begin("Info", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize)) {

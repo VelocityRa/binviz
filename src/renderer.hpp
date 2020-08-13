@@ -5,17 +5,17 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-class ScreenRenderer {
+class Renderer {
  public:
-  explicit ScreenRenderer(glm::uvec2 viewport_size);
-  ~ScreenRenderer();
+  explicit Renderer(glm::uvec2 viewport_size);
+  ~Renderer();
 
   void render();
   void bind_screen_texture() const;
   void set_data(buffer&& data);
   void set_viewport_size(glm::uvec2 viewport_size);
   void set_texture_size(glm::ivec2 texture_size);
-  void set_offset(u64 offset);
+  void set_offset(s64 offset);
 
   void change_pos(glm::vec2 pos_delta);
   void change_scale(float scale_mult);

@@ -1,17 +1,18 @@
-#include <screen_renderer.hpp>
+#include <renderer.hpp>
 
 #include <shader.hpp>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include <algorithm>
 #include <stdexcept>
 #include <utility>
 
 const GLuint ATTRIB_INDEX_POSITION = 0;
 const GLuint ATTRIB_INDEX_TEXCOORD = 1;
 
-ScreenRenderer::ScreenRenderer(glm::uvec2 viewport_size) : m_viewport_size(viewport_size) {
+Renderer::Renderer(glm::uvec2 viewport_size) : m_viewport_size(viewport_size) {
   // Load and compile shaders
   m_shader_program_screen = renderer::load_shaders("screen");
 
@@ -50,25 +51,26 @@ ScreenRenderer::ScreenRenderer(glm::uvec2 viewport_size) : m_viewport_size(viewp
   m_u_tex_size = glGetUniformLocation(m_shader_program_screen, "u_tex_size");
 
   glBindVertexArray(0);
-
-  is_screen_quad_updated = true;
 }
 
-void ScreenRenderer::calc_and_upload_screen_quad() {
-  s32 left_px = m_screen_pos.x;
-  s32 right_px = left_px + m_texture_size.x;
-  s32 bottom_px = m_texture_size.y - m_screen_pos.y;
-  s32 top_px = bottom_px - m_texture_size.y;
+void Renderer::calc_and_upload_screen_quad() {
+  const float left_px = m_screen_pos.x;
+  const float right_px = left_px + m_texture_size.x;
+  const float bottom_px = m_texture_size.y - m_screen_pos.y;
+  const float top_px = bottom_px - m_texture_size.y;
 
   // [0, 1] to [-1, 1]
   auto to_clip_space = [](float coord) -> float { return coord * 2.0 - 1.0; };
 
-  glm::uvec2 scale(m_viewport_size.x * m_scale, m_viewport_size.y * m_scale);
+  const bool asp_correct_y = (m_texture_size.x > m_viewport_size.x);
 
-  float left_cs = to_clip_space(f32(left_px) / scale.x);
-  float right_cs = to_clip_space(f32(right_px) / scale.x);
-  float top_cs = to_clip_space(f32(top_px) / scale.y);
-  float bottom_cs = to_clip_space(f32(bottom_px) / scale.y);
+  float ratio_x = (asp_correct_y ? 1.0 : float(m_texture_size.x) / m_viewport_size.x) / m_scale;
+  float ratio_y = (asp_correct_y ? float(m_texture_size.y) / m_viewport_size.y : 1.0) / m_scale;
+
+  float left_cs = to_clip_space(left_px / m_texture_size.x * ratio_x);
+  float right_cs = to_clip_space(right_px / m_texture_size.x * ratio_x);
+  float top_cs = to_clip_space(top_px / m_texture_size.y * ratio_y);
+  float bottom_cs = to_clip_space(bottom_px / m_texture_size.y * ratio_y);
 
   const float vertices[] = {
     // Position Texcoords
@@ -80,9 +82,11 @@ void ScreenRenderer::calc_and_upload_screen_quad() {
 
   glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  is_screen_quad_updated = true;
 }
 
-void ScreenRenderer::upload_screen_texture() {
+void Renderer::upload_screen_texture() {
   bind_screen_texture();
 
   glPixelStorei(GL_UNPACK_ROW_LENGTH, m_texture_size.x);
@@ -93,7 +97,7 @@ void ScreenRenderer::upload_screen_texture() {
   is_texture_uploaded = true;
 }
 
-void ScreenRenderer::render() {
+void Renderer::render() {
   glClearColor(0.1, 0.1, 0.1, 1.0);
   glClear(GL_COLOR_BUFFER_BIT);
 
@@ -114,15 +118,17 @@ void ScreenRenderer::render() {
     upload_screen_texture();
 
   // Set uniforms
-  glUniform2f(m_u_tex_size, (f32)m_texture_size.x, (f32)m_texture_size.y);
+  glUniform2f(m_u_tex_size, (float)m_texture_size.x, (float)m_texture_size.y);
 
   // Draw screen
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
-void ScreenRenderer::set_texture_size(glm::ivec2 texture_size) {
+void Renderer::set_texture_size(glm::ivec2 texture_size) {
   // texture_size.y = m_data.size() / texture_size.x;
   // texture_size.y = 14400;
+
+  texture_size = glm::max(texture_size, { 1, 1 });
 
   // If screen texture dimensions changed
   if (texture_size != m_texture_size) {
@@ -137,39 +143,40 @@ void ScreenRenderer::set_texture_size(glm::ivec2 texture_size) {
   }
 }
 
-void ScreenRenderer::set_offset(u64 offset) {
-  m_texture_data_offset = offset;
+void Renderer::set_offset(s64 offset) {
+  m_texture_data_offset = std::clamp(s64(offset), 0ll, s64(m_data.size()));
 
   is_texture_updated = false;
 }
 
-void ScreenRenderer::set_data(buffer&& data) {
+void Renderer::set_data(buffer&& data) {
   m_data = std::move(data);
 
   is_texture_updated = false;
 }
 
-void ScreenRenderer::set_viewport_size(glm::uvec2 viewport_size) {
+void Renderer::set_viewport_size(glm::uvec2 viewport_size) {
   m_viewport_size = viewport_size;
 
   is_screen_quad_updated = false;
 }
 
-void ScreenRenderer::change_scale(float scale_mult) {
+void Renderer::change_scale(float scale_mult) {
   m_scale *= scale_mult;
 
   is_screen_quad_updated = false;
 }
 
-void ScreenRenderer::update_texture() {
-  const auto count = m_texture_size.x * m_texture_size.y;
-  m_texture_data.resize(count);
+void Renderer::update_texture() {
+  const auto pixel_count = m_data.size();
+  m_texture_data.clear();
+  m_texture_data.resize(pixel_count);
 
 #if 0
   for (u32 y = 0; y < height; ++y) {
     for (u32 x = 0; x < width; ++x) {
-      const u8 r = f32(y) / height * 255;
-      const u8 g = f32(x) / width * 255;
+      const u8 r = float(y) / height * 255;
+      const u8 g = float(x) / width * 255;
       // const u8 r = (y % 32) * 8;
       // const u8 g = (x % 32) * 8;
       // const u8 b = 0x00;
@@ -182,8 +189,9 @@ void ScreenRenderer::update_texture() {
   }
 #endif
 
-  for (u32 i = 0; i < count; ++i) {
-    const u8 val = m_data[m_texture_data_offset + i];
+  const auto max_pixel_count = pixel_count - m_texture_data_offset;
+  for (s32 i = 0; i < max_pixel_count; ++i) {
+    const u8 val = m_data[size_t(m_texture_data_offset + i)];
     const u8 r = val;
     const u8 g = val;
     const u8 b = val;
@@ -196,18 +204,18 @@ void ScreenRenderer::update_texture() {
   is_texture_uploaded = false;
 }
 
-void ScreenRenderer::change_pos(glm::vec2 pos_delta) {
+void Renderer::change_pos(glm::vec2 pos_delta) {
   m_screen_pos += pos_delta * m_scale;
 
   is_screen_quad_updated = false;
 }
 
-void ScreenRenderer::bind_screen_texture() const {
+void Renderer::bind_screen_texture() const {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, m_tex_screen);
 }
 
-ScreenRenderer::~ScreenRenderer() {
+Renderer::~Renderer() {
   glDeleteTextures(1, &m_tex_screen);
   glDeleteBuffers(1, &m_vbo);
   glDeleteVertexArrays(1, &m_vao);

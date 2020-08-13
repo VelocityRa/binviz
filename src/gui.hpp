@@ -2,14 +2,14 @@
 
 #include <glm/glm.hpp>
 
-class ScreenRenderer;
+class Renderer;
 struct GLFWwindow;
 
 #include <vector>
 
 class Gui {
  public:
-  void init(ScreenRenderer* renderer, GLFWwindow* window, const char* glsl_version);
+  void init(Renderer* renderer, GLFWwindow* window, const char* glsl_version);
 
   void frame_begin();
   void draw_ui();
@@ -17,7 +17,7 @@ class Gui {
   void deinit();
 
  public:
-  ScreenRenderer* renderer;
+  Renderer* renderer;
   bool active{ true };
   bool left_mouse_pressed{};
   glm::vec2 prev_pos{};

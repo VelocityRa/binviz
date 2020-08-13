@@ -1,5 +1,5 @@
 #include <gui.hpp>
-#include <screen_renderer.hpp>
+#include <renderer.hpp>
 #include <util/load_file.hpp>
 #include <util/log.hpp>
 #include <util/types.hpp>
@@ -30,8 +30,8 @@ void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 namespace config {
 
 constexpr char* window_title = "BinViz v0.1";
-constexpr u32 window_width = 1920;
-constexpr u32 window_height = 1080 - 100;
+constexpr u32 window_width = 3840; // 1920;
+constexpr u32 window_height = 2160 - 130; //1080 - 100;
 constexpr bool window_fullscreen = false;  // border-less
 constexpr bool vsync = true;
 
@@ -96,7 +96,7 @@ s32 main() {
   glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
   glDebugMessageCallback(gl_debug_message_callback, 0);
 
-  ScreenRenderer renderer({ config::window_width, config::window_height });
+  Renderer renderer({ config::window_width, config::window_height });
 
   auto file_data = util::load_file("D:\\Emulators\\pcsx2\\sstates\\eeMemory_sly2_ep3.bin");
 
@@ -183,7 +183,7 @@ void glfw_cursor_position_callback(GLFWwindow* window, f64 mouse_x, f64 mouse_y)
 }
 
 void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-  float scale_delta = 1.2;
+  float scale_delta = 1.1;
 
   if (yoffset > 0.0)
     scale_delta = 1.0 / scale_delta;
