@@ -101,7 +101,7 @@ s32 main() {
   auto file_data = util::load_file("D:\\Emulators\\pcsx2\\sstates\\eeMemory_sly2_ep3.bin");
 
   renderer.set_data(std::move(file_data));
-  renderer.set_texture_size({ 1024, 1440 });
+  renderer.set_texture_size({ config::window_width, config::window_height });
 
   // Set up gui
   g_gui.init(&renderer, window, "#version 460");

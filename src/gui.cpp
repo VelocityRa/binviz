@@ -125,17 +125,25 @@ void Gui::draw_ui() {
     if (ImGui::DragFloat2("Position", (float*)&renderer->m_screen_pos, 0.01f, 0.0f, 5.0f)) {
       renderer->is_screen_quad_updated = false;
     }
-    // todo Reset button
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##pos")) {
+      renderer->set_pos({ 0, 0 });
+    }
 
     if (ImGui::DragFloat("Scale", &renderer->m_scale, 0.001f, 0.0f, 5.0f)) {
+      renderer->is_screen_quad_updated = false;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Reset##scale")) {
+      renderer->m_scale = 1.0;
       renderer->is_screen_quad_updated = false;
     }
   }
   ImGui::End();
 
-  //if (ImGui::Begin("View")) {
+  // if (ImGui::Begin("View")) {
   //}
-  //ImGui::End();
+  // ImGui::End();
 
   bool open{};
   // if (ImGui::Begin("Info", &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize)) {

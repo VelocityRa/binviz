@@ -17,6 +17,7 @@ class Renderer {
   void set_texture_size(glm::ivec2 texture_size);
   void set_offset(s64 offset);
 
+  void set_pos(glm::vec2 pos);
   void change_pos(glm::vec2 pos_delta);
   void change_scale(float scale_mult);
 

@@ -202,6 +202,12 @@ void Renderer::update_texture() {
   is_texture_uploaded = false;
 }
 
+void Renderer::set_pos(glm::vec2 pos) {
+  m_screen_pos = pos;
+
+  is_screen_quad_updated = false;
+}
+
 void Renderer::change_pos(glm::vec2 pos_delta) {
   m_screen_pos += pos_delta * m_scale;
 
