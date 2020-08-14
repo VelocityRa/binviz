@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <stdexcept>
 #include <utility>
 
@@ -196,6 +197,47 @@ void Renderer::update_texture() {
     const u8 a = 0xFF;
 
     m_texture_data[i] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+  }
+  for (s32 i = 0; i < max_pixel_count; i += 4) {
+    const f32 val = *((f32*)&m_data[size_t(m_texture_data_offset + i)]);
+
+    if (val == 0.0)
+      continue;
+
+    // if (std::isnan(val))
+    // continue;
+
+    u32 color{};
+
+    if (-0.0001 <= val && val <= 0.0001) {
+      continue;
+    } else if (-1.0 <= val && val <= 1.0) {
+      const u8 r = 0;
+      const u8 g = 0xFF;
+      const u8 b = 0;
+      const u8 a = 0xFF;
+
+      color = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+    } else if (0 < val && val < 5'000.) {
+      const u8 r = 0xFF;
+      const u8 g = 0;
+      const u8 b = 0;
+      const u8 a = 0xFF;
+
+      color = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+    } else if (-5'000. < val && val < 0) {
+      const u8 r = 0xFF;
+      const u8 g = 0;
+      const u8 b = 0;
+      const u8 a = 0xFF;
+
+      color = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+    }
+
+    m_texture_data[i + 0] = color;
+    m_texture_data[i + 1] = color;
+    m_texture_data[i + 2] = color;
+    m_texture_data[i + 3] = color;
   }
 
   is_texture_updated = true;

@@ -30,8 +30,13 @@ void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 namespace config {
 
 constexpr char* window_title = "BinViz v0.1";
-constexpr u32 window_width = 3840; // 1920;
-constexpr u32 window_height = 2160 - 130; //1080 - 100;
+#if 1
+constexpr u32 window_width = 3840;
+constexpr u32 window_height = 2160; // - 130;
+#else
+constexpr u32 window_width = 1920;
+constexpr u32 window_height = 1080;  //- 100;
+#endif
 constexpr bool window_fullscreen = false;  // border-less
 constexpr bool vsync = true;
 
