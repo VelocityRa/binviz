@@ -124,9 +124,6 @@ void Renderer::render() {
 }
 
 void Renderer::set_texture_size(glm::ivec2 texture_size) {
-  // texture_size.y = m_data.size() / texture_size.x;
-  // texture_size.y = 14400;
-
   texture_size = glm::max(texture_size, { 1, 1 });
 
   // If screen texture dimensions changed
@@ -171,23 +168,6 @@ void Renderer::update_texture() {
   m_texture_data.clear();
   m_texture_data.resize(pixel_count);
 
-#if 0
-  for (u32 y = 0; y < height; ++y) {
-    for (u32 x = 0; x < width; ++x) {
-      const u8 r = float(y) / height * 255;
-      const u8 g = float(x) / width * 255;
-      // const u8 r = (y % 32) * 8;
-      // const u8 g = (x % 32) * 8;
-      // const u8 b = 0x00;
-      const u8 a = 0xFF;
-
-      const auto idx = y * width + x;
-
-      m_texture_data[idx] = (a << 24) | (b << 16) | (g << 8) | (r << 0);
-    }
-  }
-#endif
-
   const auto max_pixel_count = pixel_count - m_texture_data_offset;
   for (s32 i = 0; i < max_pixel_count; ++i) {
     const u8 val = m_data[size_t(m_texture_data_offset + i)];
@@ -204,40 +184,21 @@ void Renderer::update_texture() {
     if (val == 0.0)
       continue;
 
-    // if (std::isnan(val))
-    // continue;
-
     u32 color{};
 
-    if (-0.0001 <= val && val <= 0.0001) {
+    if (-0.0001 <= val && val <= 0.0001)
       continue;
-    } else if (-1.0 <= val && val <= 1.0) {
-      const u8 r = 0;
-      const u8 g = 0xFF;
-      const u8 b = 0;
-      const u8 a = 0xFF;
 
-      color = (a << 24) | (b << 16) | (g << 8) | (r << 0);
-    } else if (0 < val && val < 5'000.) {
-      const u8 r = 0xFF;
-      const u8 g = 0;
-      const u8 b = 0;
-      const u8 a = 0xFF;
+    for (const auto& range : float_ranges) {
+      if (range.start <= val && val <= range.end) {
+        m_texture_data[i + 0] = range.color;
+        m_texture_data[i + 1] = range.color;
+        m_texture_data[i + 2] = range.color;
+        m_texture_data[i + 3] = range.color;
 
-      color = (a << 24) | (b << 16) | (g << 8) | (r << 0);
-    } else if (-5'000. < val && val < 0) {
-      const u8 r = 0xFF;
-      const u8 g = 0;
-      const u8 b = 0;
-      const u8 a = 0xFF;
-
-      color = (a << 24) | (b << 16) | (g << 8) | (r << 0);
+        break;
+      }
     }
-
-    m_texture_data[i + 0] = color;
-    m_texture_data[i + 1] = color;
-    m_texture_data[i + 2] = color;
-    m_texture_data[i + 3] = color;
   }
 
   is_texture_updated = true;

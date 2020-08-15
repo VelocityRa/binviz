@@ -7,6 +7,7 @@
 #include <imgui.h>
 #include <imgui_glfw_gl3_backend/imgui_impl_glfw.h>
 #include <imgui_glfw_gl3_backend/imgui_impl_opengl3.h>
+#include <spdlog/fmt/fmt.h>
 
 #include <algorithm>
 #include <array>
@@ -95,6 +96,8 @@ void init_style() {
   colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
   colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 
+  style.Alpha = 0.9f;
+
   style.FrameRounding = 4.0f;
   style.GrabRounding = 4.0f;
 }
@@ -125,7 +128,7 @@ void Gui::init(Renderer* _renderer, GLFWwindow* window, const char* glsl_version
 
   float monitor_x_scale, monitor_y_scale;
   glfwGetMonitorContentScale(glfwGetPrimaryMonitor(), &monitor_x_scale, &monitor_y_scale);
-
+  monitor_x_scale = 1.0;
   io.Fonts->AddFontFromFileTTF("../../../../data/fonts/Ruda-Bold.ttf", int(15 * monitor_x_scale));
 
   auto& style = ImGui::GetStyle();
@@ -194,6 +197,31 @@ void Gui::draw_ui() {
       ImGui::SameLine();
       if (ImGui::Button("PgDown")) {
         renderer->set_offset(offset + cur_size.x * cur_size.y);
+      }
+
+      ImGui::Separator();
+
+      u32 i{};
+      for (auto& range : renderer->float_ranges) {
+        ImGui::Text("Range %u:", i);
+
+        ImGui::SameLine();
+        ImGui::InputFloat2(fmt::format("##threshold%u", i).c_str(), &range.start);
+        float new_color[3] = { f32((range.color << 0) & 0xFF) / 255.0, f32((range.color >> 8) & 0xFF) / 255.0,
+                               f32((range.color >> 16) & 0xFF) / 255.0 };
+
+        ImGui::SameLine();
+        ImGui::PushItemWidth(font_size * 5);
+        if (ImGui::ColorPicker3(fmt::format("##color%u", i).c_str(), new_color, ImGuiColorEditFlags_NoInputs)) {
+          range.color = COLOR32(u8(new_color[0] * 255), u8(new_color[1] * 255), u8(new_color[2] * 255));
+        }
+        ImGui::PopItemWidth();
+
+        i++;
+      }
+
+      if (ImGui::Button("Update", { font_size * 6, font_size * 2 })) {
+        renderer->update_texture();
       }
     }
 

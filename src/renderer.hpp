@@ -5,6 +5,10 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include <array>
+
+#define COLOR32(r, g, b) u32(0xFF << 24) | (b << 16) | (g << 8) | (r << 0)
+
 class Renderer {
  public:
   explicit Renderer(glm::uvec2 viewport_size);
@@ -19,7 +23,7 @@ class Renderer {
 
   void set_pos(glm::vec2 pos);
   void change_pos(glm::vec2 pos_delta);
-  void change_scale(float scale_mult);
+  void change_scale(f32 scale_mult);
 
   void calc_and_upload_screen_quad();
   void upload_screen_texture();
@@ -30,7 +34,7 @@ class Renderer {
 
   glm::vec2 m_screen_pos{};
 
-  float m_scale{ 1.0 };
+  f32 m_scale{ 1.0 };
 
   s32 m_texture_data_offset{};
   std::vector<u32> m_texture_data;
@@ -40,6 +44,18 @@ class Renderer {
   bool is_texture_updated{};
   bool is_texture_uploaded{};
   bool is_screen_quad_updated{};
+
+  struct ColoredFloatRange {
+    f32 start;
+    f32 end;
+    u32 color;
+  };
+
+  std::array<ColoredFloatRange, 3> float_ranges = {
+    ColoredFloatRange{ -1.0, 1.0, COLOR32(0x00, 0xFF, 0x00) },
+    ColoredFloatRange{ 0, 5000.0, COLOR32(0xFF, 0x00, 0x00) },
+    ColoredFloatRange{ -5000.0, 0, COLOR32(0x00, 0x00, 0xFF) },
+  };
 
   // Shaders
   GLuint m_shader_program_screen{};
