@@ -16,6 +16,8 @@ class Gui {
   void frame_end();
   void deinit();
 
+  bool want_capture_read();
+
  public:
   Renderer* renderer;
   bool active{ true };

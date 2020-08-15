@@ -32,7 +32,7 @@ namespace config {
 constexpr char* window_title = "BinViz v0.1";
 #if 1
 constexpr u32 window_width = 3840;
-constexpr u32 window_height = 2160; // - 130;
+constexpr u32 window_height = 2160;  // - 130;
 #else
 constexpr u32 window_width = 1920;
 constexpr u32 window_height = 1080;  //- 100;
@@ -178,7 +178,7 @@ void glfw_mouse_button_callback(GLFWwindow* window, int button, int action, int 
 }
 
 void glfw_cursor_position_callback(GLFWwindow* window, f64 mouse_x, f64 mouse_y) {
-  if (g_gui.left_mouse_pressed) {
+  if (g_gui.left_mouse_pressed && !g_gui.want_capture_read()) {
     glm::vec2 mouse_pos(mouse_x, mouse_y);
     glm::vec2 delta_pos = mouse_pos - g_gui.prev_pos;
 
