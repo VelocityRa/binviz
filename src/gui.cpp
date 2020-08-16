@@ -128,7 +128,11 @@ void Gui::init(Renderer* _renderer, GLFWwindow* window, const char* glsl_version
 
   float monitor_x_scale, monitor_y_scale;
   glfwGetMonitorContentScale(glfwGetPrimaryMonitor(), &monitor_x_scale, &monitor_y_scale);
+
+#if !_4K
   monitor_x_scale = 1.0;
+#endif
+
   io.Fonts->AddFontFromFileTTF("../../../../data/fonts/Ruda-Bold.ttf", int(15 * monitor_x_scale));
 
   auto& style = ImGui::GetStyle();
@@ -206,13 +210,13 @@ void Gui::draw_ui() {
         ImGui::Text("Range %u:", i);
 
         ImGui::SameLine();
-        ImGui::InputFloat2(fmt::format("##threshold%u", i).c_str(), &range.start);
+        ImGui::InputFloat2(fmt::format("##threshold{}", i).c_str(), &range.start);
         float new_color[3] = { f32((range.color << 0) & 0xFF) / 255.0, f32((range.color >> 8) & 0xFF) / 255.0,
                                f32((range.color >> 16) & 0xFF) / 255.0 };
 
         ImGui::SameLine();
         ImGui::PushItemWidth(font_size * 5);
-        if (ImGui::ColorPicker3(fmt::format("##color%u", i).c_str(), new_color, ImGuiColorEditFlags_NoInputs)) {
+        if (ImGui::ColorPicker3(fmt::format("##color{}", i).c_str(), new_color, ImGuiColorEditFlags_NoInputs)) {
           range.color = COLOR32(u8(new_color[0] * 255), u8(new_color[1] * 255), u8(new_color[2] * 255));
         }
         ImGui::PopItemWidth();

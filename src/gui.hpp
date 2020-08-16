@@ -2,10 +2,12 @@
 
 #include <glm/glm.hpp>
 
+#include <vector>
+
 class Renderer;
 struct GLFWwindow;
 
-#include <vector>
+#define _4K 1
 
 class Gui {
  public:
