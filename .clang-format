@@ -1,7 +1,7 @@
 ﻿---
 BasedOnStyle: Chromium
 Language: Cpp
-IndentWidth: 2
+IndentWidth: 4
 #AllowShortCaseLabelsOnASingleLine: true
 Cpp11BracedListStyle: false
 ColumnLimit: 125

@@ -7,7 +7,8 @@
 
 #include <array>
 
-#define COLOR32(r, g, b) u32(0xFF << 24) | (b << 16) | (g << 8) | (r << 0)
+#define COLOR_RGBI_TO_U32(r, g, b) u32(0xFF << 24) | (b << 16) | (g << 8) | (r << 0)
+#define COLOR_U32_TO_RGBF(c) { f32((c >> 0) & 0xFF) / 255, f32((c >> 8) & 0xFF) / 255, f32((c >> 16) & 0xFF) / 255 }
 
 class Renderer {
  public:
@@ -28,6 +29,10 @@ class Renderer {
   void calc_and_upload_screen_quad();
   void upload_screen_texture();
   void update_texture();
+
+  void palette_shuffle();
+  void palette_rainbow();
+  void palette_golden_angle();
 
   glm::ivec2 m_texture_size{};
   glm::uvec2 m_viewport_size{};
@@ -50,11 +55,13 @@ class Renderer {
     f32 end;
     u32 color;
   };
+  std::array<u32, 256> palette_colors;
+
 
   std::array<ColoredFloatRange, 3> float_ranges = {
-    ColoredFloatRange{ -1.0, 1.0, COLOR32(0x00, 0xFF, 0x00) },
-    ColoredFloatRange{ 0, 5000.0, COLOR32(0xFF, 0x00, 0x00) },
-    ColoredFloatRange{ -5000.0, 0, COLOR32(0x00, 0x00, 0xFF) },
+    ColoredFloatRange{ -1.0, 1.0, COLOR_RGBI_TO_U32(0x00, 0xFF, 0x00) },
+    ColoredFloatRange{ 0, 10000.0, COLOR_RGBI_TO_U32(0xFF, 0x00, 0x00) },
+    ColoredFloatRange{ -10000.0, 0, COLOR_RGBI_TO_U32(0x00, 0x00, 0xFF) },
   };
 
   // Shaders
