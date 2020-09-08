@@ -106,8 +106,11 @@ s32 main() {
 
     Renderer renderer({ config::window_width, config::window_height });
 
-    // auto file_data = util::load_file(R"(D:\Emulators\pcsx2\sstates\eeMemory_sly2_ep3.bin)");
-    auto file_data = util::load_file(R"(D:\Nikos\Reversing\Sly\Prototypes\Sly 1 E3 Demo Extracted\SLY\uw_bonus_library)");
+    auto file_data = util::load_file(R"(D:\Emulators\pcsx2\sstates\eeMemory_sly2_ep3.bin)");
+     //auto file_data = util::load_file(R"(D:\Nikos\Reversing\Sly\Prototypes\Sly 1 E3 Demo Extracted\SLY\uw_bonus_library)");
+    //auto file_data = util::load_file(R"(D:\Emulators\pcsx2\sstates\eeMemory_sly2_intro_texdbg.bin)");
+    //auto file_data = util::load_file(R"(D:\Emulators\pcsx2\sstates\Plugin_GS_sly2_intro_texdbg.dat)");
+    //auto file_data = util::load_file(R"(D:\Nikos\Reversing\Sly\SLY2\extracted_by_bms_script\jb_intro\Z_1)");
 
     // const auto file_size_aligned = stx::align(file_data.size(), 16*1024*1024);
     // file_data.resize(file_size_aligned);

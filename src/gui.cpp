@@ -205,14 +205,35 @@ void Gui::draw_ui() {
             }
 
             if (ImGui::CollapsingHeader("Display Mode", ImGuiTreeNodeFlags_DefaultOpen)) {
+                if (ImGui::Checkbox("Shade bytes", &renderer->shade_bytes_grayscale))
+                    renderer->update_texture();
+
                 if (ImGui::BeginTabBar("Modes##modes")) {
                     if (ImGui::BeginTabItem("Threshold")) {
+                        if (ImGui::Checkbox("4-byte stride", &renderer->four_byte_stride)) {
+                            auto new_size = renderer->m_texture_size;
+
+                            if (renderer->four_byte_stride)
+                                new_size.x /= 4;
+                            else
+                                new_size.x *= 4;
+
+                            renderer->set_texture_size(new_size);
+                        }
+
+                        ImGui::NewLine();
+
                         u32 i{};
                         for (auto& range : renderer->float_ranges) {
+                            if (ImGui::Checkbox(fmt::format("##range_{}", i).c_str(), &range.enabled))
+                                renderer->update_texture();
+
+                            ImGui::SameLine();
                             ImGui::Text("Range %u:", i);
 
                             ImGui::SameLine();
-                            ImGui::InputFloat2(fmt::format("##threshold{}", i).c_str(), &range.start);
+                            if (ImGui::InputFloat2(fmt::format("##threshold{}", i).c_str(), &range.start))
+                                renderer->update_texture();
                             float new_color[3] = { f32((range.color << 0) & 0xFF) / 255.0,
                                                    f32((range.color >> 8) & 0xFF) / 255.0,
                                                    f32((range.color >> 16) & 0xFF) / 255.0 };
@@ -223,11 +244,14 @@ void Gui::draw_ui() {
                                                     ImGuiColorEditFlags_NoInputs)) {
                                 range.color = COLOR_RGBI_TO_U32(u8(new_color[0] * 255), u8(new_color[1] * 255),
                                                                 u8(new_color[2] * 255));
+                                renderer->update_texture();
                             }
                             ImGui::PopItemWidth();
 
                             i++;
                         }
+
+                        renderer->draw_mode = Renderer::DrawMode::Thresholding;
 
                         ImGui::EndTabItem();
                     }
@@ -270,6 +294,8 @@ void Gui::draw_ui() {
 
                         if (ImGui::Button("Shuffle"))
                             renderer->palette_shuffle();
+
+                        renderer->draw_mode = Renderer::DrawMode::Paletted;
 
                         ImGui::EndTabItem();
                     }

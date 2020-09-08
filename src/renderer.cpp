@@ -93,6 +93,17 @@ void Renderer::calc_and_upload_screen_quad() {
 void Renderer::upload_screen_texture() {
     bind_screen_texture();
 
+    // const auto stride = four_byte_stride ? m_texture_size.x / 4 : m_texture_size.x;
+
+    // glPixelStorei(GL_UNPACK_ROW_LENGTH, stride);
+
+    // if (four_byte_stride)
+    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, stride, m_texture_size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+    //                 m_texture_data.data());
+    // else
+    //    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, stride, m_texture_size.y, GL_RGBA, GL_UNSIGNED_BYTE,
+    //    m_texture_data.data());
+
     glPixelStorei(GL_UNPACK_ROW_LENGTH, m_texture_size.x);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_texture_size.x, m_texture_size.y, GL_RGBA, GL_UNSIGNED_BYTE,
                     m_texture_data.data());
@@ -169,51 +180,76 @@ void Renderer::change_scale(float scale_mult) {
 }
 
 void Renderer::update_texture() {
-    const auto pixel_count = m_data.size();
+    auto pixel_count = m_data.size();
+    auto tex_data_offset = m_texture_data_offset;
+
     m_texture_data.clear();
+
+    //if (draw_mode == DrawMode::Thresholding && four_byte_stride) {
+    //    pixel_count /= 4;
+    //    tex_data_offset /= 4;
+    //}
+
     m_texture_data.resize(pixel_count);
 
-    const auto max_pixel_count = pixel_count - m_texture_data_offset;
-    for (s32 i = 0; i < max_pixel_count; ++i) {
-        const u8 val = m_data[size_t(m_texture_data_offset + i)];
-        const u8 r = val;
-        const u8 g = val;
-        const u8 b = val;
+    const auto max_pixel_count = pixel_count - tex_data_offset;
 
-        m_texture_data[i] = COLOR_RGBI_TO_U32(r, g, b);
+    if (shade_bytes_grayscale) {
+        for (s32 i = 0; i < max_pixel_count; ++i) {
+            const u8 val = m_data[size_t(m_texture_data_offset + i)];
+            const u8 r = val;
+            const u8 g = val;
+            const u8 b = val;
+
+            m_texture_data[i] = COLOR_RGBI_TO_U32(r, g, b);
+        }
     }
 
-#if 0
-  for (s32 i = 0; i < max_pixel_count; i += 4) {
-    const f32 val = *((f32*)&m_data[size_t(m_texture_data_offset + i)]);
+    switch (draw_mode) {
+        case DrawMode::Thresholding: {
+            for (s32 i = 0; i < max_pixel_count; i += 4) {
+                const f32 val = *((f32*)&m_data[size_t(m_texture_data_offset + i)]);
 
-    if (val == 0.0)
-      continue;
+                if (val == 0.0)
+                    continue;
 
-    u32 color{};
+                u32 color{};
 
-    if (-0.0001 <= val && val <= 0.0001)
-      continue;
+                if (-0.0001 <= val && val <= 0.0001)
+                    continue;
 
+                if (four_byte_stride) {
+                    for (const auto& range : float_ranges) {
+                        if (range.enabled && range.start <= val && val <= range.end) {
+                            m_texture_data[i / 4] = range.color;
 
-    for (const auto& range : float_ranges) {
-      if (range.start <= val && val <= range.end) {
-        m_texture_data[i + 0] = range.color;
-        m_texture_data[i + 1] = range.color;
-        m_texture_data[i + 2] = range.color;
-        m_texture_data[i + 3] = range.color;
+                            break;
+                        }
+                    }
+                } else {
+                    for (const auto& range : float_ranges) {
+                        if (range.enabled && range.start <= val && val <= range.end) {
+                            m_texture_data[i + 0] = range.color;
+                            m_texture_data[i + 1] = range.color;
+                            m_texture_data[i + 2] = range.color;
+                            m_texture_data[i + 3] = range.color;
 
-        break;
-      }
+                            break;
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case DrawMode::Paletted: {
+            for (s32 i = 0; i < max_pixel_count; i++) {
+                const u8 val = m_data[size_t(m_texture_data_offset + i)];
+                m_texture_data[i] = palette_colors[val];
+            }
+
+            break;
+        }
     }
-  }
-#else
-    for (s32 i = 0; i < max_pixel_count; i++) {
-        const u8 val = m_data[size_t(m_texture_data_offset + i)];
-        m_texture_data[i] = palette_colors[val];
-    }
-
-#endif
 
     is_texture_updated = true;
     is_texture_uploaded = false;
