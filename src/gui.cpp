@@ -207,10 +207,12 @@ void Gui::draw_ui() {
             if (ImGui::CollapsingHeader("Display Mode", ImGuiTreeNodeFlags_DefaultOpen)) {
                 if (ImGui::Checkbox("Shade bytes", &renderer->shade_bytes_grayscale))
                     renderer->update_texture();
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Shade all bytes from black to white,\nif not otherwise shaded.");
 
                 if (ImGui::BeginTabBar("Modes##modes")) {
                     if (ImGui::BeginTabItem("Threshold")) {
-                        if (ImGui::Checkbox("4-byte stride", &renderer->four_byte_stride)) {
+                        if (ImGui::Checkbox("4 bytes per pixel", &renderer->four_byte_stride)) {
                             auto new_size = renderer->m_texture_size;
 
                             if (renderer->four_byte_stride)
@@ -255,6 +257,8 @@ void Gui::draw_ui() {
 
                         ImGui::EndTabItem();
                     }
+                    if (ImGui::IsItemHovered())
+                        ImGui::SetTooltip("Shade floating point number ranges.");
 
                     if (ImGui::BeginTabItem("Palette")) {
                         ImGui::PushItemWidth(int(font_size * 1.2));
@@ -282,23 +286,33 @@ void Gui::draw_ui() {
                         ImGui::PopItemWidth();
                         ImGui::NewLine();
 
-                        if (ImGui::Button("Set: Rainbow"))
+                        if (ImGui::Button("Set: Rainbow")) {
                             renderer->palette_rainbow();
+                            renderer->update_texture();
+                        }
 
                         ImGui::SameLine();
 
-                        if (ImGui::Button("Set: Golden Angle Cycle"))
+                        if (ImGui::Button("Set: Golden Angle Cycle")) {
                             renderer->palette_golden_angle();
+                            renderer->update_texture();
+                        }
+
+                        if (ImGui::Button("Shuffle")) {
+                            renderer->palette_shuffle();
+                            renderer->update_texture();
+                        }
 
                         ImGui::SameLine();
 
-                        if (ImGui::Button("Shuffle"))
-                            renderer->palette_shuffle();
+                        ImGui::Checkbox("0x00 is black", &renderer->palette_0_is_black);
 
                         renderer->draw_mode = Renderer::DrawMode::Paletted;
 
                         ImGui::EndTabItem();
                     }
+                    if (ImGui::IsItemHovered())
+                        ImGui::SetTooltip("Shade bytes according to a palette.");
 
                     ImGui::EndTabBar();
                 }

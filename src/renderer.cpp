@@ -185,7 +185,7 @@ void Renderer::update_texture() {
 
     m_texture_data.clear();
 
-    //if (draw_mode == DrawMode::Thresholding && four_byte_stride) {
+    // if (draw_mode == DrawMode::Thresholding && four_byte_stride) {
     //    pixel_count /= 4;
     //    tex_data_offset /= 4;
     //}
@@ -273,6 +273,9 @@ void Renderer::palette_rainbow() {
 
         palette_colors[i] = COLOR_RGBI_TO_U32(u8(rgb.r * 255), u8(rgb.g * 255), u8(rgb.b * 255));
     }
+
+    if (palette_0_is_black)
+        palette_colors[0] = COLOR_RGBI_TO_U32(0, 0, 0);
 }
 
 void Renderer::palette_golden_angle() {
@@ -288,6 +291,9 @@ void Renderer::palette_golden_angle() {
 
         palette_colors[i] = COLOR_RGBI_TO_U32(u8(rgb.r * 255), u8(rgb.g * 255), u8(rgb.b * 255));
     }
+
+    if (palette_0_is_black)
+        palette_colors[0] = COLOR_RGBI_TO_U32(0, 0, 0);
 }
 
 void Renderer::set_pos(glm::vec2 pos) {

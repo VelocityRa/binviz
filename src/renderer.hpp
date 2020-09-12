@@ -64,6 +64,7 @@ class Renderer {
     bool shade_bytes_grayscale{ true };
     bool four_byte_stride{ false };
     DrawMode draw_mode{ DrawMode::Thresholding };
+    bool palette_0_is_black{ true };
 
     std::array<ColoredFloatRange, 3> float_ranges = {
         ColoredFloatRange{ -1.0, 1.0, COLOR_RGBI_TO_U32(0x00, 0xFF, 0x00), true },
