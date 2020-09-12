@@ -30,8 +30,9 @@ void glfw_cursor_position_callback(GLFWwindow* window, f64 xpos, f64 ypos);
 void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void glfw_window_size_callback(GLFWwindow* window, int width, int height);
 
-
 namespace config {
+
+constexpr bool gl_debug = true;
 
 constexpr char* window_title = "BinViz v0.1";
 
@@ -60,10 +61,11 @@ s32 main(int argc, char** argv) {
 
     // Set all the required options for GLFW
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+    // glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     GLFWwindow* window{};
 
@@ -95,6 +97,7 @@ s32 main(int argc, char** argv) {
     glfwSetMouseButtonCallback(window, glfw_mouse_button_callback);
     glfwSetCursorPosCallback(window, glfw_cursor_position_callback);
     glfwSetScrollCallback(window, glfw_scroll_callback);
+    glfwSetWindowSizeCallback(window, glfw_window_size_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         LOG_ERROR("Failed to initialize OpenGL context");
@@ -102,11 +105,13 @@ s32 main(int argc, char** argv) {
         return -1;
     }
 
-    // During init, enable debug output
-    glEnable(GL_DEBUG_OUTPUT);
-    // TODO: glDebugMessageControl
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(gl_debug_message_callback, 0);
+    if constexpr (config::gl_debug) {
+        // During init, enable debug output
+        glEnable(GL_DEBUG_OUTPUT);
+        // TODO: glDebugMessageControl
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(gl_debug_message_callback, 0);
+    }
 
     g_renderer.set_viewport_size({ config::window_width, config::window_height });
     g_renderer.init();
@@ -141,7 +146,7 @@ s32 main(int argc, char** argv) {
 #endif
 
     // Set up gui
-    g_gui.init(&g_renderer, window, "#version 460");
+    g_gui.init(&g_renderer, window, "#version 430");
 
     // Define the viewport dimensions
     glViewport(0, 0, config::window_width, config::window_height);
@@ -189,8 +194,7 @@ void glfw_key_callback(GLFWwindow* window, s32 key, s32 scancode, s32 action, s3
         case GLFW_KEY_ESCAPE:
             glfwSetWindowShouldClose(window, GL_TRUE);
             break;
-        default:
-            LOG_DEBUG("Pressed key: {}", key);
+        default:;  // LOG_DEBUG("Pressed key: {}", key);
     }
 }
 
@@ -234,7 +238,7 @@ void glfw_error_callback(s32 error, const char* description) {
 }
 
 void glfw_window_size_callback(GLFWwindow* window, int width, int height) {
-    g_renderer.set_viewport_size({width, height});
+    g_renderer.set_viewport_size({ width, height });
 }
 
 void GLAPIENTRY gl_debug_message_callback(GLenum source,

@@ -188,12 +188,6 @@ void Renderer::update_texture() {
     auto tex_data_offset = m_texture_data_offset;
 
     m_texture_data.clear();
-
-    // if (draw_mode == DrawMode::Thresholding && four_byte_stride) {
-    //    pixel_count /= 4;
-    //    tex_data_offset /= 4;
-    //}
-
     m_texture_data.resize(pixel_count);
 
     const auto max_pixel_count = pixel_count - tex_data_offset;
@@ -261,13 +255,19 @@ void Renderer::update_texture() {
 
 void Renderer::palette_shuffle() {
     auto rng = std::default_random_engine{};
-    std::shuffle(palette_colors.begin(), palette_colors.end(), rng);
+
+    auto it_shuffle_start = palette_colors.begin();
+
+    if (palette_0_is_black)
+        ++it_shuffle_start;
+
+    std::shuffle(it_shuffle_start, palette_colors.end(), rng);
 }
 
 void Renderer::palette_rainbow() {
     auto palette = stx::create_array<u8, 256>();
 
-    for (auto i = 0; i <= 0xFF; ++i) {
+    for (int i = 0; i <= 0xFF; ++i) {
         HSV hsv;
         hsv.h = f32(palette[i]) / 255.0 * 360.0;
         hsv.s = 1.0;

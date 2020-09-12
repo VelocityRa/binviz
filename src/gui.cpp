@@ -134,7 +134,7 @@ void Gui::init(Renderer* _renderer, GLFWwindow* window, const char* glsl_version
     monitor_x_scale = 1.0;
 #endif
 
-    io.Fonts->AddFontFromFileTTF("../../../../data/fonts/Ruda-Bold.ttf", int(15 * monitor_x_scale));
+    io.Fonts->AddFontFromFileTTF("data/fonts/Ruda-Bold.ttf", int(15 * monitor_x_scale));
 
     auto& style = ImGui::GetStyle();
     style.ScaleAllSizes(monitor_x_scale);
@@ -153,7 +153,7 @@ void Gui::draw_ui() {
     if (!active)
         return;
 
-    ImGui::ShowDemoWindow();
+    // ImGui::ShowDemoWindow();
 
     ImGuiIO& io = ImGui::GetIO();
     const auto font_size = ImGui::GetFontSize();
@@ -318,9 +318,11 @@ void Gui::draw_ui() {
                 }
 
                 ImGui::Separator();
-                if (ImGui::Button("Update Screen", { font_size * 8, f32(s32(font_size * 1.8)) })) {
+                if (ImGui::Button("Update Screen", { font_size * 7, f32(s32(font_size * 1.5)) })) {
                     renderer->update_texture();
                 }
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Needed when swiching display mode.");
             }
         }
 
