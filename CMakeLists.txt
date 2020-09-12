@@ -38,6 +38,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /openmp")
 # endif()
 
+### Main executable
+add_executable(${PROJECT_NAME} src/main.cpp)
+
 ### vcpkg dependencies
 
 # spdlog
@@ -53,28 +56,24 @@ target_compile_definitions(spdlog::spdlog INTERFACE SPDLOG_ACTIVE_LEVEL=SPDLOG_L
 
 # imgui
 find_package(imgui CONFIG REQUIRED)
-# target_link_libraries(main PRIVATE imgui::imgui)
 
 # glm
 find_package(glm CONFIG REQUIRED)
-# target_link_libraries(main PRIVATE glm)
 
 # glfw3
 find_package(glfw3 CONFIG REQUIRED)
-# target_link_libraries(main PRIVATE glfw)
 
 # glad
 find_package(glad CONFIG REQUIRED)
-# target_link_libraries(main PRIVATE glad::glad)
 
-### Main executable
-add_executable(${PROJECT_NAME} src/main.cpp)
+# Dependency: nativefiledialog
+find_package(unofficial-nativefiledialog CONFIG REQUIRED)
 
 ### Add source tree
 add_subdirectory(src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    glad::glad glfw imgui::imgui glm spdlog::spdlog imgui_glfw_gl3_backend stb_image util)
+    glad::glad glfw imgui::imgui glm spdlog::spdlog imgui_glfw_gl3_backend stb_image util unofficial::nativefiledialog::nfd)
 
 ### Add externals directory for additional externals
 add_subdirectory(external)

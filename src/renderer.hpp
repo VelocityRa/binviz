@@ -13,9 +13,11 @@
 
 class Renderer {
    public:
+    explicit Renderer() = default;
     explicit Renderer(glm::uvec2 viewport_size);
     ~Renderer();
 
+    void init();
     void render();
     void bind_screen_texture() const;
     void set_data(buffer&& data);

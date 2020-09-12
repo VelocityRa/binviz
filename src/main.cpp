@@ -11,6 +11,7 @@
 // clang-format on
 #include <spdlog/spdlog.h>
 #include <glm/glm.hpp>
+#include <nfd.h>
 
 #include <tuple>
 
@@ -27,6 +28,8 @@ void glfw_key_callback(GLFWwindow* window, s32 key, s32 scancode, s32 action, s3
 void glfw_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void glfw_cursor_position_callback(GLFWwindow* window, f64 xpos, f64 ypos);
 void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void glfw_window_size_callback(GLFWwindow* window, int width, int height);
+
 
 namespace config {
 
@@ -46,8 +49,9 @@ constexpr u32 window_height = 1080;  //- 100;
 }  // namespace config
 
 Gui g_gui;
+Renderer g_renderer;
 
-s32 main() {
+s32 main(int argc, char** argv) {
     logging::init();
 
     // Init GLFW
@@ -59,7 +63,7 @@ s32 main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
     GLFWwindow* window{};
 
@@ -104,35 +108,48 @@ s32 main() {
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(gl_debug_message_callback, 0);
 
-    Renderer renderer({ config::window_width, config::window_height });
+    g_renderer.set_viewport_size({ config::window_width, config::window_height });
+    g_renderer.init();
 
-    auto file_data = util::load_file(R"(D:\Emulators\pcsx2\sstates\eeMemory_sly2_ep3.bin)");
-     //auto file_data = util::load_file(R"(D:\Nikos\Reversing\Sly\Prototypes\Sly 1 E3 Demo Extracted\SLY\uw_bonus_library)");
-    //auto file_data = util::load_file(R"(D:\Emulators\pcsx2\sstates\eeMemory_sly2_intro_texdbg.bin)");
-    //auto file_data = util::load_file(R"(D:\Emulators\pcsx2\sstates\Plugin_GS_sly2_intro_texdbg.dat)");
-    //auto file_data = util::load_file(R"(D:\Nikos\Reversing\Sly\SLY2\extracted_by_bms_script\jb_intro\Z_1)");
+    char filename[256]{};
 
-    // const auto file_size_aligned = stx::align(file_data.size(), 16*1024*1024);
-    // file_data.resize(file_size_aligned);
-    // file_data.resize(0x1000);
+    if (argc >= 2)
+        strncpy(filename, argv[1], sizeof(filename));
+    else {
+        nfdchar_t* filename_tmp = NULL;
+        nfdresult_t result = NFD_OpenDialog(NULL, NULL, &filename_tmp);
 
-    renderer.set_data(std::move(file_data));
+        if (result == NFD_OKAY) {
+            strncpy(filename, filename_tmp, sizeof(filename));
+            free(filename_tmp);
+        } else if (result == NFD_CANCEL) {
+            spdlog::error("User pressed cancel.");
+            return -1;
+        } else {
+            spdlog::error("Error: {}", NFD_GetError());
+            return -2;
+        }
+    }
+
+    auto file_data = util::load_file(filename);
+
+    g_renderer.set_data(std::move(file_data));
 #if 0
-  renderer.set_texture_size({ config::window_width, config::window_height });
+  g_renderer.set_texture_size({ config::window_width, config::window_height });
 #else
-    renderer.set_texture_size({ 1024, config::window_height });
+    g_renderer.set_texture_size({ 1024, config::window_height });
 #endif
 
     // Set up gui
-    g_gui.init(&renderer, window, "#version 460");
+    g_gui.init(&g_renderer, window, "#version 460");
 
     // Define the viewport dimensions
     glViewport(0, 0, config::window_width, config::window_height);
 
-    // renderer.set_window_size(config::window_width, config::window_height);
-    // renderer.init();
+    // g_renderer.set_window_size(config::window_width, config::window_height);
+    // g_renderer.init();
 
-    // g_gui.set_renderer(&renderer);
+    // g_gui.set_g_renderer(&g_renderer);
 
     // Game loop
     while (!glfwWindowShouldClose(window)) {
@@ -145,8 +162,8 @@ s32 main() {
         g_gui.frame_begin();
         g_gui.draw_ui();
 
-        // renderer.update();
-        renderer.render();
+        // g_renderer.update();
+        g_renderer.render();
 
         g_gui.frame_end();
 
@@ -214,6 +231,10 @@ void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 void glfw_error_callback(s32 error, const char* description) {
     LOG_ERROR("GLFW Error {}: {}", error, description);
     assert(0);
+}
+
+void glfw_window_size_callback(GLFWwindow* window, int width, int height) {
+    g_renderer.set_viewport_size({width, height});
 }
 
 void GLAPIENTRY gl_debug_message_callback(GLenum source,

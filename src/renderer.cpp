@@ -17,6 +17,10 @@ const GLuint ATTRIB_INDEX_POSITION = 0;
 const GLuint ATTRIB_INDEX_TEXCOORD = 1;
 
 Renderer::Renderer(glm::uvec2 viewport_size) : m_viewport_size(viewport_size) {
+    init();
+}
+
+void Renderer::init() {
     // Load and compile shaders
     m_shader_program_screen = renderer::load_shaders("screen");
 
