@@ -32,7 +32,7 @@ void glfw_window_size_callback(GLFWwindow* window, int width, int height);
 
 namespace config {
 
-constexpr bool gl_debug = true;
+constexpr bool gl_debug = false;
 
 constexpr char* window_title = "BinViz v0.1";
 
@@ -60,8 +60,13 @@ s32 main(int argc, char** argv) {
     glfwInit();
 
     // Set all the required options for GLFW
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    if (config::gl_debug) {
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    } else {
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    }
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
     // glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
@@ -146,7 +151,7 @@ s32 main(int argc, char** argv) {
 #endif
 
     // Set up gui
-    g_gui.init(&g_renderer, window, "#version 430");
+    g_gui.init(&g_renderer, window, "#version 330");
 
     // Define the viewport dimensions
     glViewport(0, 0, config::window_width, config::window_height);
@@ -190,11 +195,19 @@ void glfw_key_callback(GLFWwindow* window, s32 key, s32 scancode, s32 action, s3
     bool held = (action != GLFW_RELEASE);  // We want to catch repeats too
     bool released = (action == GLFW_RELEASE);
 
-    switch (key) {  // TODO: could use glfwGetWindowUserPointer
-        case GLFW_KEY_ESCAPE:
-            glfwSetWindowShouldClose(window, GL_TRUE);
-            break;
-        default:;  // LOG_DEBUG("Pressed key: {}", key);
+    if (pressed) {
+        switch (key) {  // TODO: could use glfwGetWindowUserPointer
+            case GLFW_KEY_ESCAPE:
+                glfwSetWindowShouldClose(window, GL_TRUE);
+                break;
+            case GLFW_KEY_PAGE_UP:
+                g_renderer.change_offset_page(-1);
+                break;
+            case GLFW_KEY_PAGE_DOWN:
+                g_renderer.change_offset_page(1);
+                break;
+            default:;  // LOG_DEBUG("Pressed key: {}", key);
+        }
     }
 }
 
@@ -224,7 +237,7 @@ void glfw_cursor_position_callback(GLFWwindow* window, f64 mouse_x, f64 mouse_y)
 }
 
 void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    float scale_delta = 1.1;
+    float scale_delta = 1.09;
 
     if (yoffset > 0.0)
         scale_delta = 1.0 / scale_delta;

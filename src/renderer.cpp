@@ -165,6 +165,17 @@ void Renderer::set_offset(s64 offset) {
     is_texture_updated = false;
 }
 
+void Renderer::change_offset_page(s32 page_delta) {
+    const auto cur_size = m_texture_size;
+    const s32 offset = m_texture_data_offset;
+
+    s32 delta = cur_size.x * cur_size.y * page_delta;
+    if (four_byte_stride)
+        delta *= 4;
+
+    set_offset(offset + delta);
+}
+
 void Renderer::set_data(buffer&& data) {
     m_data = std::move(data);
 
@@ -193,20 +204,32 @@ void Renderer::update_texture() {
     const auto max_pixel_count = pixel_count - tex_data_offset;
 
     if (shade_bytes_grayscale) {
-        for (s32 i = 0; i < max_pixel_count; ++i) {
-            const u8 val = m_data[size_t(m_texture_data_offset + i)];
-            const u8 r = val;
-            const u8 g = val;
-            const u8 b = val;
+        if (four_byte_stride) {
+            for (s32 i = 0; i < max_pixel_count; i += 4) {
+                const u8 val = m_data[m_texture_data_offset + i];
+                const u8 r = val;
+                const u8 g = val;
+                const u8 b = val;
 
-            m_texture_data[i] = COLOR_RGBI_TO_U32(r, g, b);
+                m_texture_data[i / 4] = COLOR_RGBI_TO_U32(r, g, b);
+            }
+        } else {
+            for (s32 i = 0; i < max_pixel_count; ++i) {
+                const u8 val = m_data[m_texture_data_offset + i];
+                const u8 r = val;
+                const u8 g = val;
+                const u8 b = val;
+
+                m_texture_data[i] = COLOR_RGBI_TO_U32(r, g, b);
+            }
         }
     }
 
     switch (draw_mode) {
         case DrawMode::Thresholding: {
             for (s32 i = 0; i < max_pixel_count; i += 4) {
-                const f32 val = *((f32*)&m_data[size_t(m_texture_data_offset + i)]);
+                const size_t offset = ((m_texture_data_offset + i) / 4) * 4;  // Align to 4
+                const f32 val = *((f32*)&m_data[offset]);
 
                 if (val == 0.0)
                     continue;

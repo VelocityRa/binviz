@@ -191,17 +191,18 @@ void Gui::draw_ui() {
             }
 
             s32 offset = renderer->m_texture_data_offset;
-            if (ImGui::InputInt("Offset", &offset, 1, cur_size.x, ImGuiInputTextFlags_CharsHexadecimal)) {
+            const s32 offset_step = renderer->four_byte_stride ? 4 : 1;
+            if (ImGui::InputInt("Offset", &offset, offset_step, cur_size.x, ImGuiInputTextFlags_CharsHexadecimal)) {
                 if (offset >= 0 && offset < data_size)
                     renderer->set_offset(offset);
             }
             ImGui::SameLine();
             if (ImGui::Button("PgUp")) {
-                renderer->set_offset(offset - cur_size.x * cur_size.y);
+                renderer->change_offset_page(-1);
             }
             ImGui::SameLine();
             if (ImGui::Button("PgDown")) {
-                renderer->set_offset(offset + cur_size.x * cur_size.y);
+                renderer->change_offset_page(1);
             }
 
             if (ImGui::CollapsingHeader("Display Mode", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -213,14 +214,8 @@ void Gui::draw_ui() {
                 if (ImGui::BeginTabBar("Modes##modes")) {
                     if (ImGui::BeginTabItem("Threshold")) {
                         if (ImGui::Checkbox("4 bytes per pixel", &renderer->four_byte_stride)) {
-                            auto new_size = renderer->m_texture_size;
-
-                            if (renderer->four_byte_stride)
-                                new_size.x /= 4;
-                            else
-                                new_size.x *= 4;
-
-                            renderer->set_texture_size(new_size);
+                            renderer->is_screen_quad_updated = false;
+                            renderer->is_texture_updated = false;
                         }
 
                         ImGui::NewLine();
