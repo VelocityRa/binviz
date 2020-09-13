@@ -166,8 +166,21 @@ void Gui::draw_ui() {
 
         ImGui::PushItemWidth(font_size * 10);
         if (ImGui::CollapsingHeader("Data Layout", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::Text("Width");
+            ImGui::SameLine(font_size * 4);
+
             s32 new_x = cur_size.x;
-            if (ImGui::SliderInt("Width", &new_x, 1, 2560)) {
+            if (ImGui::SliderInt("##width", &new_x, 1, 2560)) {
+                renderer->set_texture_size({ new_x, cur_size.y });
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("x2##width")) {
+                new_x *= 2;
+                renderer->set_texture_size({ new_x, cur_size.y });
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("/2##width")) {
+                new_x /= 2;
                 renderer->set_texture_size({ new_x, cur_size.y });
             }
 
@@ -177,22 +190,42 @@ void Gui::draw_ui() {
             const char* const width_values_str[] = { "8", "16", "32", "64", "128", "256", "512", "1024", "2048" };
 
             static s32 width_idx{};
-            ImGui::SetNextItemWidth(font_size * 5);
-            if (ImGui::Combo("##width", &width_idx, width_values_str, IM_ARRAYSIZE(width_values_str))) {
+            ImGui::SetNextItemWidth(font_size * 3);
+            if (ImGui::Combo("##width_combo", &width_idx, width_values_str, IM_ARRAYSIZE(width_values_str))) {
                 renderer->set_texture_size({ width_values[width_idx], cur_size.y });
             }
 
-            const auto data_size = renderer->m_data.size();
+            ImGui::Text("Height");
+            ImGui::SameLine(font_size * 4);
 
+            const auto data_size = renderer->m_data.size();
             s32 new_y = cur_size.y;
             const auto max_y = data_size / cur_size.x;
-            if (ImGui::DragInt("Height", &new_y, 1.0, 1, max_y)) {
+            if (ImGui::DragInt("##height", &new_y, 1.0, 1, max_y)) {
+                renderer->set_texture_size({ cur_size.x, new_y });
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("x2##height")) {
+                new_y *= 2;
+                renderer->set_texture_size({ cur_size.x, new_y });
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("/2##height")) {
+                new_y /= 2;
+                renderer->set_texture_size({ cur_size.x, new_y });
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Fill screen")) {
+                new_y = renderer->m_viewport_size.y * renderer->m_scale;
                 renderer->set_texture_size({ cur_size.x, new_y });
             }
 
+            ImGui::Text("Offset");
+            ImGui::SameLine(font_size * 4);
+
             s32 offset = renderer->m_texture_data_offset;
             const s32 offset_step = renderer->four_byte_stride ? 4 : 1;
-            if (ImGui::InputInt("Offset", &offset, offset_step, cur_size.x, ImGuiInputTextFlags_CharsHexadecimal)) {
+            if (ImGui::InputInt("##offset", &offset, offset_step, cur_size.x, ImGuiInputTextFlags_CharsHexadecimal)) {
                 if (offset >= 0 && offset < data_size)
                     renderer->set_offset(offset);
             }
@@ -201,8 +234,26 @@ void Gui::draw_ui() {
                 renderer->change_offset_page(-1);
             }
             ImGui::SameLine();
-            if (ImGui::Button("PgDown")) {
+            if (ImGui::Button("PgDn")) {
                 renderer->change_offset_page(1);
+            }
+
+            ImGui::SameLine();
+
+            const size_t page_size = cur_size.x * cur_size.y * (renderer->four_byte_stride ? 4 : 1);
+
+            std::vector<std::string> page_strs;
+            int i{};
+            int prev_i{};
+            while (i < data_size) {
+                i = std::min(i + page_size, data_size);
+                page_strs.push_back(fmt::format("[{:X} - {:X}]", prev_i, i - 1));
+                prev_i = i;
+            }
+
+            s32 page_idx = renderer->m_texture_data_offset / page_size;
+            if (ImGui::Combo("##page_combo", &page_idx, page_strs)) {
+                renderer->set_offset_page(page_idx);
             }
 
             if (ImGui::CollapsingHeader("Display Mode", ImGuiTreeNodeFlags_DefaultOpen)) {

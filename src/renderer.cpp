@@ -97,17 +97,6 @@ void Renderer::calc_and_upload_screen_quad() {
 void Renderer::upload_screen_texture() {
     bind_screen_texture();
 
-    // const auto stride = four_byte_stride ? m_texture_size.x / 4 : m_texture_size.x;
-
-    // glPixelStorei(GL_UNPACK_ROW_LENGTH, stride);
-
-    // if (four_byte_stride)
-    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, stride, m_texture_size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-    //                 m_texture_data.data());
-    // else
-    //    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, stride, m_texture_size.y, GL_RGBA, GL_UNSIGNED_BYTE,
-    //    m_texture_data.data());
-
     glPixelStorei(GL_UNPACK_ROW_LENGTH, m_texture_size.x);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_texture_size.x, m_texture_size.y, GL_RGBA, GL_UNSIGNED_BYTE,
                     m_texture_data.data());
@@ -165,6 +154,16 @@ void Renderer::set_offset(s64 offset) {
     is_texture_updated = false;
 }
 
+void Renderer::set_offset_page(s64 page) {
+    const auto cur_size = m_texture_size;
+
+    s32 offset = cur_size.x * cur_size.y * page;
+    if (four_byte_stride)
+        offset *= 4;
+
+    set_offset(offset);
+}
+
 void Renderer::change_offset_page(s32 page_delta) {
     const auto cur_size = m_texture_size;
     const s32 offset = m_texture_data_offset;
@@ -195,17 +194,17 @@ void Renderer::change_scale(float scale_mult) {
 }
 
 void Renderer::update_texture() {
-    auto pixel_count = m_data.size();
+    auto data_size = m_data.size();
     auto tex_data_offset = m_texture_data_offset;
 
     m_texture_data.clear();
-    m_texture_data.resize(pixel_count);
+    m_texture_data.resize(data_size);
 
-    const auto max_pixel_count = pixel_count - tex_data_offset;
+    const auto max_data_size = data_size - tex_data_offset;
 
     if (shade_bytes_grayscale) {
         if (four_byte_stride) {
-            for (s32 i = 0; i < max_pixel_count; i += 4) {
+            for (s32 i = 0; i < max_data_size; i += 4) {
                 const u8 val = m_data[m_texture_data_offset + i];
                 const u8 r = val;
                 const u8 g = val;
@@ -214,7 +213,7 @@ void Renderer::update_texture() {
                 m_texture_data[i / 4] = COLOR_RGBI_TO_U32(r, g, b);
             }
         } else {
-            for (s32 i = 0; i < max_pixel_count; ++i) {
+            for (s32 i = 0; i < max_data_size; ++i) {
                 const u8 val = m_data[m_texture_data_offset + i];
                 const u8 r = val;
                 const u8 g = val;
@@ -227,7 +226,7 @@ void Renderer::update_texture() {
 
     switch (draw_mode) {
         case DrawMode::Thresholding: {
-            for (s32 i = 0; i < max_pixel_count; i += 4) {
+            for (s32 i = 0; i < max_data_size; i += 4) {
                 const size_t offset = ((m_texture_data_offset + i) / 4) * 4;  // Align to 4
                 const f32 val = *((f32*)&m_data[offset]);
 
@@ -263,7 +262,7 @@ void Renderer::update_texture() {
             break;
         }
         case DrawMode::Paletted: {
-            for (s32 i = 0; i < max_pixel_count; i++) {
+            for (s32 i = 0; i < max_data_size; i++) {
                 const u8 val = m_data[size_t(m_texture_data_offset + i)];
                 m_texture_data[i] = palette_colors[val];
             }

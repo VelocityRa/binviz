@@ -141,13 +141,20 @@ s32 main(int argc, char** argv) {
         }
     }
 
+    const auto new_window_title = fmt::format("{}   [{}]", config::window_title, fs::path(filename).filename().string());
+    glfwSetWindowTitle(window, new_window_title.c_str());
+
     auto file_data = util::load_file(filename);
 
     g_renderer.set_data(std::move(file_data));
 #if 0
   g_renderer.set_texture_size({ config::window_width, config::window_height });
 #else
-    g_renderer.set_texture_size({ 1024, config::window_height });
+    int width = 2;
+    for (; width < config::window_width; width *= 2);
+    width /= 2;
+
+    g_renderer.set_texture_size({ width, config::window_height });
 #endif
 
     // Set up gui
@@ -237,6 +244,9 @@ void glfw_cursor_position_callback(GLFWwindow* window, f64 mouse_x, f64 mouse_y)
 }
 
 void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    if (g_gui.want_capture_read())
+        return;
+
     float scale_delta = 1.09;
 
     if (yoffset > 0.0)

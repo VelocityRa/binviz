@@ -24,6 +24,7 @@ class Renderer {
     void set_viewport_size(glm::uvec2 viewport_size);
     void set_texture_size(glm::ivec2 texture_size);
     void set_offset(s64 offset);
+    void set_offset_page(s64 page);
     void change_offset_page(s32 page_delta);
 
     void set_pos(glm::vec2 pos);
