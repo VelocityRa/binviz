@@ -7,7 +7,7 @@
 class Renderer;
 struct GLFWwindow;
 
-#define _4K 1
+#define _4K 0
 
 class Gui {
  public:
