@@ -36,7 +36,7 @@ constexpr bool is_release = true;
 
 constexpr bool gl_debug = false; //!is_release;
 
-constexpr char* window_title = "BinViz v0.1";
+constexpr char* window_title = "BinViz v1.0";
 
 constexpr bool window_fullscreen = is_release ? false : false;  // border-less
 constexpr bool vsync = true;
