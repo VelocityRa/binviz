@@ -225,7 +225,8 @@ void Gui::draw_ui() {
 
             s32 offset = renderer->m_texture_data_offset;
             const s32 offset_step = renderer->four_byte_stride ? 4 : 1;
-            if (ImGui::InputInt("##offset", &offset, offset_step, cur_size.x, ImGuiInputTextFlags_CharsHexadecimal)) {
+            const s32 offset_step_fast = offset_step * cur_size.x;
+            if (ImGui::InputInt("##offset", &offset, offset_step, offset_step_fast, ImGuiInputTextFlags_CharsHexadecimal)) {
                 if (offset >= 0 && offset < data_size)
                     renderer->set_offset(offset);
             }
@@ -240,7 +241,8 @@ void Gui::draw_ui() {
 
             ImGui::SameLine();
 
-            const size_t page_size = cur_size.x * cur_size.y * (renderer->four_byte_stride ? 4 : 1);
+            //const size_t page_size = cur_size.x * cur_size.y * (renderer->four_byte_stride ? 4 : 1);
+            const size_t page_size = cur_size.x * cur_size.y * (renderer->four_byte_stride ? 1 : 1);
 
             std::vector<std::string> page_strs;
             int i{};
