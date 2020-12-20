@@ -32,11 +32,13 @@ void glfw_window_size_callback(GLFWwindow* window, int width, int height);
 
 namespace config {
 
-constexpr bool gl_debug = false;
+constexpr bool is_release = true;
+
+constexpr bool gl_debug = false; //!is_release;
 
 constexpr char* window_title = "BinViz v0.1";
 
-constexpr bool window_fullscreen = false;  // border-less
+constexpr bool window_fullscreen = is_release ? false : false;  // border-less
 constexpr bool vsync = true;
 
 #if _4K
@@ -145,6 +147,7 @@ s32 main(int argc, char** argv) {
     glfwSetWindowTitle(window, new_window_title.c_str());
 
     auto file_data = util::load_file(filename);
+    const auto file_size = file_data.size();
 
     g_renderer.set_data(std::move(file_data));
 #if 0
@@ -154,7 +157,12 @@ s32 main(int argc, char** argv) {
     for (; width < config::window_width; width *= 2);
     width /= 2;
 
-    g_renderer.set_texture_size({ width, config::window_height });
+    width = std::min(size_t(width), file_size);
+    int height = std::min(size_t(600), file_size / width);
+
+    g_renderer.set_texture_size({ width, height });
+    // todo: std min
+    //g_renderer.set_texture_size({ width, config::window_height });
 #endif
 
     // Set up gui
