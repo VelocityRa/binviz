@@ -11,7 +11,7 @@
 namespace logging {
 
 static constexpr auto ENABLE_FILE_LOGGING = false;
-static constexpr auto LOG_FILENAME = "voxels.log";
+static constexpr auto LOG_FILENAME = "binviz.log";
 static constexpr auto DEFAULT_LOG_PATTERN = "%^|%L| %16s:%-3# %v%$";
 
 void init() {
