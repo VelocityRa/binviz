@@ -16,7 +16,7 @@
 const GLuint ATTRIB_INDEX_POSITION = 0;
 const GLuint ATTRIB_INDEX_TEXCOORD = 1;
 
-#define RGBA_MODE 1
+#define RGBA_MODE 0
 
 Renderer::Renderer(glm::uvec2 viewport_size) : m_viewport_size(viewport_size) {
     init();
