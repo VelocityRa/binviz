@@ -16,6 +16,8 @@
 const GLuint ATTRIB_INDEX_POSITION = 0;
 const GLuint ATTRIB_INDEX_TEXCOORD = 1;
 
+#define RGBA_MODE 1
+
 Renderer::Renderer(glm::uvec2 viewport_size) : m_viewport_size(viewport_size) {
     init();
 }
@@ -169,8 +171,8 @@ void Renderer::change_offset_page(s32 page_delta) {
     const s32 offset = m_texture_data_offset;
 
     s32 delta = cur_size.x * cur_size.y * page_delta;
-    if (four_byte_stride)
-        delta *= 4;
+    // if (four_byte_stride)
+    //    delta *= 4;
 
     set_offset(offset + delta);
 }
@@ -201,6 +203,21 @@ void Renderer::update_texture() {
     m_texture_data.resize(data_size);
 
     const auto max_data_size = data_size - tex_data_offset;
+
+#if RGBA_MODE
+    for (s32 i = 0; i < max_data_size; i += 4) {
+        const u32 val = *((u32*)&m_data[m_texture_data_offset + i]);
+        const u8 r = (val >> 0) & 0xFF;
+        const u8 g = (val >> 8) & 0xFF;
+        const u8 b = (val >> 16) & 0xFF;
+
+        m_texture_data[i / 4] = COLOR_RGBI_TO_U32(r, g, b);
+    }
+
+    is_texture_updated = true;
+    is_texture_uploaded = false;
+    return;
+#endif
 
     if (shade_bytes_grayscale) {
         if (four_byte_stride) {
