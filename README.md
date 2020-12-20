@@ -16,7 +16,7 @@ The basic modes available are:
 ![](screenshots/3.png?raw=true "")
 
 # Motivation
-The initial motivation for creating this was exploring PS2 memory dumps and game files, specifically for finding clustered floating point numbers in Sly memory that could be part of interesting structures, like meshes or textures.
+The initial motivation for creating this was exploring PS2 memory dumps and game files, specifically for finding clustered floating point numbers in game memory that could be part of interesting structures, like meshes or textures.
 
 Despite the original use case, it can of course be used to visualize any file.
 
