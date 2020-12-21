@@ -1,21 +1,21 @@
 # binviz
 Binary visualization tool.
 
-Allows you to load a binary and pan/zoom around its vizualized content.
+Allows you to load a binary and pan/zoom around its content. Each byte (or 4 bytes in 4-byte mode) is represented by a single pixel/color.
 
-# Features
+## Features
 The basic modes available are:
 
 * **Threshold**: Visualize floating point values in specific ranges
 * **Palette**: View each byte value as a specific color
 * **RGBA**: View bytes as RGBA colors (currently available only as a compile-time flag)
 
-# Screenshots
+## Screenshots
 ![](screenshots/1.png?raw=true "")
 ![](screenshots/2.png?raw=true "")
 ![](screenshots/3.png?raw=true "")
 
-# Motivation
+## Motivation
 The initial motivation for creating this was exploring PS2 memory dumps and game files, specifically for finding clustered floating point numbers in game memory that could be part of interesting structures, like meshes or textures.
 
 Despite the original use case, it can of course be used to visualize any file.
