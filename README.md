@@ -6,7 +6,7 @@ Allows you to load a binary and pan/zoom around its content. Each byte (or 4 byt
 ## Features
 The basic modes available are:
 
-* **Threshold**: Visualize floating point values in specific ranges
+* **Threshold**: Visualize floating point values of a given range, with specific colors
 * **Palette**: View each byte value as a specific color
 * **RGBA**: View bytes as RGBA colors (currently available only as a compile-time flag)
 
