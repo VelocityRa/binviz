@@ -16,10 +16,10 @@ The basic modes available are:
 ![](screenshots/3.png?raw=true "")
 
 ## Motivation
-The initial motivation for creating this was exploring PS2 memory dumps and game files, specifically for finding clustered floating point numbers in game memory that could be part of interesting structures, like meshes or textures.
+The initial motivation for creating this was exploring PS2 memory dumps and game files, specifically for finding clustered floating point numbers in game memory that could be part of interesting structures, like meshes. PS2 also uses paletted textures a lot, so the "Palette" feature was developed shortly after.
 
 Despite the original use case, it can of course be used to visualize any file.
 
 The floating point view in particular is very useful for game reverse engineering. To my knowledge there are not other tools that do this.
 
-Cheat Engine has a similar feature, but it's very limited feature-wise and really slow since it works with RAM contents and has to update in real time.
+Cheat Engine has a "Graphical memory viewer" (no float support), but It's very limited feature-wise and really slow since it works with RAM contents and has to update in real time.
