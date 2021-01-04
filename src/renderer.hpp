@@ -39,6 +39,8 @@ class Renderer {
     void palette_rainbow();
     void palette_golden_angle();
 
+    bool is_inited{};
+
     glm::ivec2 m_texture_size{};
     glm::uvec2 m_viewport_size{};
 

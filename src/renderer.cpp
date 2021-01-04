@@ -63,6 +63,8 @@ void Renderer::init() {
     m_u_tex_size = glGetUniformLocation(m_shader_program_screen, "u_tex_size");
 
     glBindVertexArray(0);
+
+    is_inited = true;
 }
 
 void Renderer::calc_and_upload_screen_quad() {
@@ -357,8 +359,10 @@ void Renderer::bind_screen_texture() const {
 }
 
 Renderer::~Renderer() {
-    glDeleteTextures(1, &m_tex_screen);
-    glDeleteBuffers(1, &m_vbo);
-    glDeleteVertexArrays(1, &m_vao);
-    glDeleteProgram(m_shader_program_screen);
+    if (is_inited) {
+        glDeleteTextures(1, &m_tex_screen);
+        glDeleteBuffers(1, &m_vbo);
+        glDeleteVertexArrays(1, &m_vao);
+        glDeleteProgram(m_shader_program_screen);
+    }
 }
