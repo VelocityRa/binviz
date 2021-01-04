@@ -75,8 +75,8 @@ class Renderer {
 
     std::array<ColoredFloatRange, 3> float_ranges = {
         ColoredFloatRange{ -1.0, 1.0, COLOR_RGBI_TO_U32(0x00, 0xFF, 0x00), true },
-        ColoredFloatRange{ 1.001, 10000.0, COLOR_RGBI_TO_U32(0xFF, 0x00, 0x00), true },
-        ColoredFloatRange{ -10000.0, -1.001, COLOR_RGBI_TO_U32(0x00, 0x00, 0xFF), true },
+        ColoredFloatRange{ 1.001, 50000.0, COLOR_RGBI_TO_U32(0xFF, 0x00, 0x00), true },
+        ColoredFloatRange{ -50000.0, -1.001, COLOR_RGBI_TO_U32(0x00, 0x00, 0xFF), true },
     };
 
     // Shaders
