@@ -26,7 +26,7 @@ void GLAPIENTRY gl_debug_message_callback(GLenum source,
 void glfw_error_callback(s32 error, const char* description);
 void glfw_key_callback(GLFWwindow* window, s32 key, s32 scancode, s32 action, s32 mode);
 void glfw_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-void glfw_cursor_position_callback(GLFWwindow* window, f64 xpos, f64 ypos);
+void glfw_cursor_position_callback(GLFWwindow* window, f64 mouse_x, f64 mouse_y);
 void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void glfw_window_size_callback(GLFWwindow* window, int width, int height);
 
@@ -34,7 +34,7 @@ namespace config {
 
 constexpr bool is_release = true;
 
-constexpr bool gl_debug = false; //!is_release;
+constexpr bool gl_debug = false;  //! is_release;
 
 constexpr char* window_title = "BinViz v1.0";
 
@@ -154,7 +154,8 @@ s32 main(int argc, char** argv) {
   g_renderer.set_texture_size({ config::window_width, config::window_height });
 #else
     int width = 2;
-    for (; width < config::window_width; width *= 2);
+    for (; width < config::window_width; width *= 2)
+        ;
     width /= 2;
 
     width = std::min(size_t(width), file_size);
@@ -162,7 +163,7 @@ s32 main(int argc, char** argv) {
 
     g_renderer.set_texture_size({ width, height });
     // todo: std min
-    //g_renderer.set_texture_size({ width, config::window_height });
+    // g_renderer.set_texture_size({ width, config::window_height });
 #endif
 
     // Set up gui
