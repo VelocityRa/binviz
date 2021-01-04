@@ -270,6 +270,11 @@ void Gui::draw_ui() {
                             renderer->is_screen_quad_updated = false;
                             renderer->is_texture_updated = false;
                         }
+                        ImGui::SameLine();
+                        if (ImGui::Checkbox("Include unaligned floats", &renderer->m_unaligned_floats)) {
+                            renderer->is_screen_quad_updated = false;
+                            renderer->is_texture_updated = false;
+                        }
 
                         ImGui::NewLine();
 
@@ -284,9 +289,9 @@ void Gui::draw_ui() {
                             ImGui::SameLine();
                             if (ImGui::InputFloat2(fmt::format("##threshold{}", i).c_str(), &range.start))
                                 renderer->update_texture();
-                            float new_color[3] = { f32((range.color << 0) & 0xFF) / 255.0,
-                                                   f32((range.color >> 8) & 0xFF) / 255.0,
-                                                   f32((range.color >> 16) & 0xFF) / 255.0 };
+                            float new_color[3] = { static_cast<float>(f32((range.color << 0) & 0xFF) / 255.0),
+                                                   static_cast<float>(f32((range.color >> 8) & 0xFF) / 255.0),
+                                                   static_cast<float>(f32((range.color >> 16) & 0xFF) / 255.0) };
 
                             ImGui::SameLine();
                             ImGui::PushItemWidth(font_size * 5);

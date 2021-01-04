@@ -71,6 +71,7 @@ class Renderer {
     bool four_byte_stride{ false };
     DrawMode draw_mode{ DrawMode::Thresholding };
     bool palette_0_is_black{ true };
+    bool m_unaligned_floats { true };
 
     std::array<ColoredFloatRange, 3> float_ranges = {
         ColoredFloatRange{ -1.0, 1.0, COLOR_RGBI_TO_U32(0x00, 0xFF, 0x00), true },

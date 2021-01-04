@@ -245,17 +245,14 @@ void Renderer::update_texture() {
 
     switch (draw_mode) {
         case DrawMode::Thresholding: {
-            for (s32 i = 0; i < max_data_size; i += 4) {
-                const size_t offset = ((m_texture_data_offset + i) / 4) * 4;  // Align to 4
-                const f32 val = *((f32*)&m_data[offset]);
-
+            auto threshold_body = [&](s32& i, f32 val) {
                 if (val == 0.0)
-                    continue;
+                    return;
 
                 u32 color{};
 
                 if (-0.0001 <= val && val <= 0.0001)
-                    continue;
+                    return;
 
                 if (four_byte_stride) {
                     for (const auto& range : float_ranges) {
@@ -273,9 +270,26 @@ void Renderer::update_texture() {
                             m_texture_data[i + 2] = range.color;
                             m_texture_data[i + 3] = range.color;
 
+                            i += 3;  // and loop statement will increase i by 1 more
                             break;
                         }
                     }
+                }
+            };
+
+            if (m_unaligned_floats) {
+                for (s32 i = 0; i < max_data_size; ++i) {
+                    const size_t offset = m_texture_data_offset + i;
+                    const f32 val = *((f32*)&m_data[offset]);
+
+                    threshold_body(i, val);
+                }
+            } else {
+                for (s32 i = 0; i < max_data_size; i += 4) {
+                    const size_t offset = ((m_texture_data_offset + i) / 4) * 4;  // Align to 4
+                    const f32 val = *((f32*)&m_data[offset]);
+
+                    threshold_body(i, val);
                 }
             }
             break;
