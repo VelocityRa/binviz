@@ -270,7 +270,8 @@ void Renderer::update_texture() {
                             m_texture_data[i + 2] = range.color;
                             m_texture_data[i + 3] = range.color;
 
-                            i += 3;  // and loop statement will increase i by 1 more
+                            if (m_unaligned_floats)
+                                i += 3;  // and loop statement will increase i by 1 more
                             break;
                         }
                     }
