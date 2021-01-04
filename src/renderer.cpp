@@ -173,8 +173,8 @@ void Renderer::change_offset_page(s32 page_delta) {
     const s32 offset = m_texture_data_offset;
 
     s32 delta = cur_size.x * cur_size.y * page_delta;
-    // if (four_byte_stride)
-    //    delta *= 4;
+    if (four_byte_stride)
+        delta *= 4;
 
     set_offset(offset + delta);
 }
