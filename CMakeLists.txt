@@ -69,11 +69,14 @@ find_package(glad CONFIG REQUIRED)
 # Dependency: nativefiledialog
 find_package(unofficial-nativefiledialog CONFIG REQUIRED)
 
+# OpenMP
+find_package(OpenMP)
+
 ### Add source tree
 add_subdirectory(src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    glad::glad glfw imgui::imgui glm spdlog::spdlog imgui_glfw_gl3_backend stb_image util unofficial::nativefiledialog::nfd)
+    glad::glad glfw imgui::imgui glm spdlog::spdlog imgui_glfw_gl3_backend stb_image util unofficial::nativefiledialog::nfd OpenMP::OpenMP_CXX)
 
 ### Add externals directory for additional externals
 add_subdirectory(external)

@@ -39,6 +39,9 @@ class Renderer {
     void palette_rainbow();
     void palette_golden_angle();
 
+    template<bool UnalignedFloats>
+    void threshold_body(s32& i, f32 val);
+
     bool is_inited{};
 
     glm::ivec2 m_texture_size{};

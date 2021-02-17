@@ -6,6 +6,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <omp.h>
 
 #include <algorithm>
 #include <cmath>
@@ -195,6 +196,38 @@ void Renderer::change_scale(float scale_mult) {
     is_screen_quad_updated = false;
 }
 
+template <bool UnalignedFloats>
+void Renderer::threshold_body(s32& i, f32 val) {
+    if (val == 0.0)
+        return;
+
+    if (-0.0001 <= val && val <= 0.0001)
+        return;
+
+    if (four_byte_stride) {
+        for (const auto& range : float_ranges) {
+            if (range.enabled && range.start <= val && val <= range.end) {
+                m_texture_data[i / 4] = range.color;
+
+                break;
+            }
+        }
+    } else {
+        for (const auto& range : float_ranges) {
+            if (range.enabled && range.start <= val && val <= range.end) {
+                m_texture_data[i + 0] = range.color;
+                m_texture_data[i + 1] = range.color;
+                m_texture_data[i + 2] = range.color;
+                m_texture_data[i + 3] = range.color;
+
+                if constexpr (UnalignedFloats)
+                    i += 3;  // and loop statement will increase i by 1 more
+                break;
+            }
+        }
+    }
+}
+
 void Renderer::update_texture() {
     auto data_size = m_data.size();
     auto tex_data_offset = m_texture_data_offset;
@@ -228,57 +261,27 @@ void Renderer::update_texture() {
                 }
             }
 
-            auto threshold_body = [&](s32& i, f32 val) {
-                if (val == 0.0)
-                    return;
-
-                u32 color{};
-
-                if (-0.0001 <= val && val <= 0.0001)
-                    return;
-
-                if (four_byte_stride) {
-                    for (const auto& range : float_ranges) {
-                        if (range.enabled && range.start <= val && val <= range.end) {
-                            m_texture_data[i / 4] = range.color;
-
-                            break;
-                        }
-                    }
-                } else {
-                    for (const auto& range : float_ranges) {
-                        if (range.enabled && range.start <= val && val <= range.end) {
-                            m_texture_data[i + 0] = range.color;
-                            m_texture_data[i + 1] = range.color;
-                            m_texture_data[i + 2] = range.color;
-                            m_texture_data[i + 3] = range.color;
-
-                            if (m_unaligned_floats)
-                                i += 3;  // and loop statement will increase i by 1 more
-                            break;
-                        }
-                    }
-                }
-            };
-
             if (m_unaligned_floats) {
+#pragma omp parallel for schedule(static)
                 for (s32 i = 0; i < max_data_size; ++i) {
                     const size_t offset = m_texture_data_offset + i;
                     const f32 val = *((f32*)&m_data[offset]);
 
-                    threshold_body(i, val);
+                    threshold_body<true>(i, val);
                 }
             } else {
+#pragma omp parallel for
                 for (s32 i = 0; i < max_data_size; i += 4) {
                     const size_t offset = ((m_texture_data_offset + i) / 4) * 4;  // Align to 4
                     const f32 val = *((f32*)&m_data[offset]);
 
-                    threshold_body(i, val);
+                    threshold_body<false>(i, val);
                 }
             }
             break;
         }
         case DrawMode::Paletted: {
+#pragma omp parallel for
             for (s32 i = 0; i < max_data_size; i++) {
                 const u8 val = m_data[size_t(m_texture_data_offset + i)];
                 m_texture_data[i] = palette_colors[val];
@@ -287,6 +290,7 @@ void Renderer::update_texture() {
             break;
         }
         case DrawMode::RGBA: {
+#pragma omp parallel for
             for (s32 i = 0; i < max_data_size; i += 4) {
                 const u32 val = *((u32*)&m_data[m_texture_data_offset + i]);
                 const u8 r = (val >> 0) & 0xFF;
