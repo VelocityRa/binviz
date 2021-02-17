@@ -65,7 +65,7 @@ class Renderer {
     };
     std::array<u32, 256> palette_colors;
 
-    enum class DrawMode { Thresholding, Paletted };
+    enum class DrawMode { Thresholding, Paletted, RGBA };
 
     bool shade_bytes_grayscale{ true };
     bool four_byte_stride{ false };

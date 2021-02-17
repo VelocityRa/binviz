@@ -1,6 +1,7 @@
 #include <gui.hpp>
 
 #include <renderer.hpp>
+#include <util/log.hpp>
 #include <util/types.hpp>
 
 #include <GLFW/glfw3.h>
@@ -170,6 +171,7 @@ void Gui::draw_ui() {
             ImGui::SameLine(font_size * 4);
 
             s32 new_x = cur_size.x;
+            ImGui::SetNextItemWidth(font_size * 21);
             if (ImGui::SliderInt("##width", &new_x, 1, 2560)) {
                 renderer->set_texture_size({ new_x, cur_size.y });
             }
@@ -201,6 +203,7 @@ void Gui::draw_ui() {
             const auto data_size = renderer->m_data.size();
             s32 new_y = cur_size.y;
             const auto max_y = data_size / cur_size.x;
+            ImGui::SetNextItemWidth(font_size * 21);
             if (ImGui::DragInt("##height", &new_y, 1.0, 1, max_y)) {
                 renderer->set_texture_size({ cur_size.x, new_y });
             }
@@ -231,6 +234,13 @@ void Gui::draw_ui() {
                     renderer->set_offset(offset);
             }
             ImGui::SameLine();
+            if (ImGui::DragInt("##offset2", &offset, offset_step_fast, 0, data_size, "0x%X")) {
+                if (offset >= 0 && offset < data_size)
+                    renderer->set_offset(offset);
+
+                //                LOG_WARN("offset: {:X}",offset);
+            }
+            ImGui::SameLine();
             if (ImGui::Button("PgUp")) {
                 renderer->change_offset_page(-1);
             }
@@ -241,7 +251,7 @@ void Gui::draw_ui() {
 
             ImGui::SameLine();
 
-            //const size_t page_size = cur_size.x * cur_size.y * (renderer->four_byte_stride ? 4 : 1);
+            // const size_t page_size = cur_size.x * cur_size.y * (renderer->four_byte_stride ? 4 : 1);
             const size_t page_size = cur_size.x * cur_size.y * (renderer->four_byte_stride ? 1 : 1);
 
             std::vector<std::string> page_strs;
@@ -367,8 +377,17 @@ void Gui::draw_ui() {
                     if (ImGui::IsItemHovered())
                         ImGui::SetTooltip("Shade bytes according to a palette.");
 
-                    ImGui::EndTabBar();
+                    if (ImGui::BeginTabItem("RGBA")) {
+                        renderer->draw_mode = Renderer::DrawMode::RGBA;
+                        renderer->update_texture();
+
+                        ImGui::EndTabItem();
+                    }
+
+                    if (ImGui::IsItemHovered())
+                        ImGui::SetTooltip("Shade floating point number ranges.");
                 }
+                ImGui::EndTabBar();
 
                 ImGui::Separator();
                 if (ImGui::Button("Update Screen", { font_size * 7, f32(s32(font_size * 1.5)) })) {

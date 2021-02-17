@@ -8,7 +8,7 @@ The basic modes available are:
 
 * **Threshold**: Visualize floating point values of a given range, with specific colors
 * **Palette**: View each byte value as a specific color
-* **RGBA**: View bytes as RGBA colors (currently available only as a compile-time flag)
+* **RGBA**: View bytes interpreted as RGBA colors
 
 ## Screenshots
 ![](screenshots/1.png?raw=true "")

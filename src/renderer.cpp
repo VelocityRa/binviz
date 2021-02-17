@@ -16,8 +16,6 @@
 const GLuint ATTRIB_INDEX_POSITION = 0;
 const GLuint ATTRIB_INDEX_TEXCOORD = 1;
 
-#define RGBA_MODE 0
-
 Renderer::Renderer(glm::uvec2 viewport_size) : m_viewport_size(viewport_size) {
     init();
 }
@@ -206,45 +204,30 @@ void Renderer::update_texture() {
 
     const auto max_data_size = data_size - tex_data_offset;
 
-#if RGBA_MODE
-    for (s32 i = 0; i < max_data_size; i += 4) {
-        const u32 val = *((u32*)&m_data[m_texture_data_offset + i]);
-        const u8 r = (val >> 0) & 0xFF;
-        const u8 g = (val >> 8) & 0xFF;
-        const u8 b = (val >> 16) & 0xFF;
-
-        m_texture_data[i / 4] = COLOR_RGBI_TO_U32(r, g, b);
-    }
-
-    is_texture_updated = true;
-    is_texture_uploaded = false;
-    return;
-#endif
-
-    if (shade_bytes_grayscale) {
-        if (four_byte_stride) {
-            for (s32 i = 0; i < max_data_size; i += 4) {
-                const u8 val = m_data[m_texture_data_offset + i];
-                const u8 r = val;
-                const u8 g = val;
-                const u8 b = val;
-
-                m_texture_data[i / 4] = COLOR_RGBI_TO_U32(r, g, b);
-            }
-        } else {
-            for (s32 i = 0; i < max_data_size; ++i) {
-                const u8 val = m_data[m_texture_data_offset + i];
-                const u8 r = val;
-                const u8 g = val;
-                const u8 b = val;
-
-                m_texture_data[i] = COLOR_RGBI_TO_U32(r, g, b);
-            }
-        }
-    }
-
     switch (draw_mode) {
         case DrawMode::Thresholding: {
+            if (shade_bytes_grayscale) {
+                if (four_byte_stride) {
+                    for (s32 i = 0; i < max_data_size; i += 4) {
+                        const u8 val = m_data[m_texture_data_offset + i];
+                        const u8 r = val;
+                        const u8 g = val;
+                        const u8 b = val;
+
+                        m_texture_data[i / 4] = COLOR_RGBI_TO_U32(r, g, b);
+                    }
+                } else {
+                    for (s32 i = 0; i < max_data_size; ++i) {
+                        const u8 val = m_data[m_texture_data_offset + i];
+                        const u8 r = val;
+                        const u8 g = val;
+                        const u8 b = val;
+
+                        m_texture_data[i] = COLOR_RGBI_TO_U32(r, g, b);
+                    }
+                }
+            }
+
             auto threshold_body = [&](s32& i, f32 val) {
                 if (val == 0.0)
                     return;
@@ -302,6 +285,16 @@ void Renderer::update_texture() {
             }
 
             break;
+        }
+        case DrawMode::RGBA: {
+            for (s32 i = 0; i < max_data_size; i += 4) {
+                const u32 val = *((u32*)&m_data[m_texture_data_offset + i]);
+                const u8 r = (val >> 0) & 0xFF;
+                const u8 g = (val >> 8) & 0xFF;
+                const u8 b = (val >> 16) & 0xFF;
+
+                m_texture_data[i / 4] = COLOR_RGBI_TO_U32(r, g, b);
+            }
         }
     }
 
