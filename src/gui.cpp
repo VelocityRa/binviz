@@ -274,6 +274,8 @@ void Gui::draw_ui() {
                 if (ImGui::IsItemHovered())
                     ImGui::SetTooltip("Shade all bytes from black to white,\nif not otherwise shaded.");
 
+                const auto old_draw_mode = renderer->draw_mode;
+
                 if (ImGui::BeginTabBar("Modes##modes")) {
                     if (ImGui::BeginTabItem("Threshold")) {
                         if (ImGui::Checkbox("4 bytes per pixel", &renderer->four_byte_stride)) {
@@ -385,7 +387,10 @@ void Gui::draw_ui() {
                     }
 
                     if (ImGui::IsItemHovered())
-                        ImGui::SetTooltip("Shade floating point number ranges.");
+                        ImGui::SetTooltip("Interpret every 4 bytes as an RGBA color.");
+
+                    if (old_draw_mode != renderer->draw_mode)
+                        renderer->update_texture();
                 }
                 ImGui::EndTabBar();
 
