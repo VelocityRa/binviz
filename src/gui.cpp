@@ -381,11 +381,9 @@ void Gui::draw_ui() {
 
                     if (ImGui::BeginTabItem("RGBA")) {
                         renderer->draw_mode = Renderer::DrawMode::RGBA;
-                        renderer->update_texture();
 
                         ImGui::EndTabItem();
                     }
-
                     if (ImGui::IsItemHovered())
                         ImGui::SetTooltip("Interpret every 4 bytes as an RGBA color.");
 
