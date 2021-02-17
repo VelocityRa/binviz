@@ -11,6 +11,7 @@ The basic modes available are:
 * **RGBA**: View bytes interpreted as RGBA colors
 
 ## Screenshots
+##### Note: These might be outdated
 ![](screenshots/1.png?raw=true "")
 ![](screenshots/2.png?raw=true "")
 ![](screenshots/3.png?raw=true "")
