@@ -227,7 +227,8 @@ void Gui::draw_ui() {
             ImGui::SameLine(font_size * 4);
 
             s32 offset = renderer->m_texture_data_offset;
-            const s32 offset_step = renderer->four_byte_stride ? 4 : 1;
+            const bool use_row_offset = (renderer->four_byte_stride || renderer->draw_mode==Renderer::DrawMode::RGBA);
+            const s32 offset_step = use_row_offset ? 4 : 1;
             const s32 offset_step_fast = offset_step * cur_size.x;
             if (ImGui::InputInt("##offset", &offset, offset_step, offset_step_fast, ImGuiInputTextFlags_CharsHexadecimal)) {
                 if (offset >= 0 && offset < data_size)
