@@ -23,4 +23,4 @@ Despite the original use case, it can of course be used to visualize any file.
 
 The floating point view in particular is very useful for game reverse engineering. To my knowledge there are not other tools that do this.
 
-Cheat Engine has a "Graphical memory viewer" (no float support), but It's very limited feature-wise and really slow since it works with RAM contents and has to update in real time.
+Cheat Engine has a "Graphical memory viewer" (no float support), but It's very limited feature-wise and _really_ slow compared to binviz (however, it works with RAM).
