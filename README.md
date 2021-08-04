@@ -19,6 +19,7 @@ The basic modes available are:
 ## Build instructions
 - Get [vcpkg](https://github.com/microsoft/vcpkg).
 - Make an environment variable called `${VCPKG_ROOT}` point to its installation directory.
+- Make sure `vcpkg` is accessible from the command line. On Windows you need to add the dir to the `${PATH}` environment variable.
 - Open the CMakeLists.txt in Visual Studio or CLion, or use CMake to otherwise create build files / build.
 
 ## Motivation
