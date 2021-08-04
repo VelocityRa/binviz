@@ -13,16 +13,6 @@ cmake_minimum_required(VERSION 3.12.4)
 #     link_libraries(stdc++fs)
 # endif()
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL Release)
-set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
-
-include_directories(src)
-include_directories(external)
-
 # vcpkg setup
 # set(VCPKG_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/external/vcpkg")
 set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
@@ -34,6 +24,17 @@ project(binviz VERSION 0.1 DESCRIPTION "BinViz")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL Release)
+set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release)
+
+include_directories(src)
+include_directories(external)
+
 # if(MSVC)
 #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /openmp")
 # endif()
