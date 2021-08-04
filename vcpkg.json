@@ -1,0 +1,19 @@
+{
+  "name": "example",
+  "version-string": "0.0.1",
+  "dependencies": [
+    "spdlog",
+    {
+      "name": "imgui",
+      "features": [ "docking-experimental" ]
+    },
+    "glm",
+    "glfw3",
+    "glad",
+    {
+      "name": "openmpi",
+      "platform": "!windows"
+    },
+    "nativefiledialog"
+  ]
+}
