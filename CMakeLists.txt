@@ -20,6 +20,10 @@ set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 # Project definition
 project(binviz VERSION 0.1 DESCRIPTION "BinViz")
 
+if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)" AND NOT VCPKG_TARGET_TRIPLET)
+    set(VCPKG_TARGET_TRIPLET "x64-windows")
+endif()
+
 # Global CMake options
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
