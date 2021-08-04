@@ -81,7 +81,7 @@ find_package(OpenMP)
 add_subdirectory(src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    glad::glad glfw imgui::imgui glm spdlog::spdlog imgui_glfw_gl3_backend stb_image util unofficial::nativefiledialog::nfd OpenMP::OpenMP_CXX)
+    glad::glad glfw imgui::imgui glm::glm spdlog::spdlog imgui_glfw_gl3_backend stb_image util unofficial::nativefiledialog::nfd OpenMP::OpenMP_CXX)
 
 ### Add externals directory for additional externals
 add_subdirectory(external)
