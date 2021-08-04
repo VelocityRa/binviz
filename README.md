@@ -16,6 +16,11 @@ The basic modes available are:
 ![](screenshots/2.png?raw=true "")
 ![](screenshots/3.png?raw=true "")
 
+## Build instructions
+- Get [vcpkg](https://github.com/microsoft/vcpkg).
+- Make an environment variable called `${VCPKG_ROOT}` point to its installation directory.
+- Open the CMakeLists.txt in Visual Studio or CLion, or use CMake to otherwise create build files / build.
+
 ## Motivation
 The initial motivation for creating this was exploring PS2 memory dumps and game files, specifically for finding clustered floating point numbers in game memory that could be part of interesting structures, like meshes. PS2 also uses paletted textures a lot, so the "Palette" feature was developed shortly after.
 
