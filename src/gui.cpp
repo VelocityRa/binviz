@@ -288,6 +288,11 @@ void Gui::draw_ui() {
                             renderer->is_screen_quad_updated = false;
                             renderer->is_texture_updated = false;
                         }
+                        ImGui::SameLine();
+                        if (ImGui::Checkbox("Big endian", &renderer->m_big_endian)) {
+                            renderer->is_screen_quad_updated = false;
+                            renderer->is_texture_updated = false;
+                        }
 
                         ImGui::NewLine();
 

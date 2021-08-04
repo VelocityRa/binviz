@@ -261,28 +261,51 @@ void Renderer::update_texture() {
                 }
             }
 
+            // TODO: clean up duplication
             if (m_unaligned_floats) {
+                if (m_big_endian) {
 #pragma omp parallel for schedule(static)
-                for (s32 i = 0; i < max_data_size; ++i) {
-                    const size_t offset = m_texture_data_offset + i;
-                    const f32 val = *((f32*)&m_data[offset]);
+                    for (s32 i = 0; i < max_data_size; ++i) {
+                        const size_t offset = m_texture_data_offset + i;
+                        const u32 val_int = _byteswap_ulong(*(u32*)&m_data[offset]);
+                        const f32 val = *(float*)&val_int;
 
-                    threshold_body<true>(i, val);
+                        threshold_body<true>(i, val);
+                    }
+                } else { // if little endian
+#pragma omp parallel for schedule(static)
+                    for (s32 i = 0; i < max_data_size; ++i) {
+                        const size_t offset = m_texture_data_offset + i;
+                        const f32 val = *((f32*)&m_data[offset]);
+
+                        threshold_body<true>(i, val);
+                    }
                 }
-            } else {
+            } else { // if aligned floats
+                if (m_big_endian) {
 #pragma omp parallel for
-                for (s32 i = 0; i < max_data_size; i += 4) {
-                    const size_t offset = ((m_texture_data_offset + i) / 4) * 4;  // Align to 4
-                    const f32 val = *((f32*)&m_data[offset]);
+                    for (s32 i = 0; i < max_data_size; i += 4) {
+                        const size_t offset = ((m_texture_data_offset + i) / 4) * 4;  // Align to 4
+                        const u32 val_int = _byteswap_ulong(*(u32*)&m_data[offset]);
+                        const f32 val = *(float*)&val_int;
 
-                    threshold_body<false>(i, val);
+                        threshold_body<false>(i, val);
+                    }
+                } else { // if little endian
+#pragma omp parallel for
+                    for (s32 i = 0; i < max_data_size; i += 4) {
+                        const size_t offset = ((m_texture_data_offset + i) / 4) * 4;  // Align to 4
+                        const f32 val = *((f32*)&m_data[offset]);
+
+                        threshold_body<false>(i, val);
+                    }
                 }
             }
             break;
         }
         case DrawMode::Paletted: {
 #pragma omp parallel for
-            for (s32 i = 0; i < max_data_size; i++) {
+            for (s32 i = 0; i < max_data_size; i++) {1
                 const u8 val = m_data[size_t(m_texture_data_offset + i)];
                 m_texture_data[i] = palette_colors[val];
             }
