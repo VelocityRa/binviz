@@ -228,6 +228,13 @@ void Renderer::threshold_body(s32& i, f32 val) {
     }
 }
 
+inline u32 bswap32(u32 v) {
+    return ((v & 0x000000FF) << 24) |
+           ((v & 0x0000FF00) << 8) |
+           ((v & 0x00FF0000) >> 8) |
+           ((v & 0xFF000000) >> 24);
+}
+
 void Renderer::update_texture() {
     auto data_size = m_data.size();
     auto tex_data_offset = m_texture_data_offset;
@@ -267,7 +274,7 @@ void Renderer::update_texture() {
 #pragma omp parallel for schedule(static)
                     for (s32 i = 0; i < max_data_size; ++i) {
                         const size_t offset = m_texture_data_offset + i;
-                        const u32 val_int = _byteswap_ulong(*(u32*)&m_data[offset]);
+                        const u32 val_int = bswap32(*(u32*)&m_data[offset]);
                         const f32 val = *(float*)&val_int;
 
                         threshold_body<true>(i, val);
@@ -286,7 +293,7 @@ void Renderer::update_texture() {
 #pragma omp parallel for
                     for (s32 i = 0; i < max_data_size; i += 4) {
                         const size_t offset = ((m_texture_data_offset + i) / 4) * 4;  // Align to 4
-                        const u32 val_int = _byteswap_ulong(*(u32*)&m_data[offset]);
+                        const u32 val_int = bswap32(*(u32*)&m_data[offset]);
                         const f32 val = *(float*)&val_int;
 
                         threshold_body<false>(i, val);
@@ -305,7 +312,7 @@ void Renderer::update_texture() {
         }
         case DrawMode::Paletted: {
 #pragma omp parallel for
-            for (s32 i = 0; i < max_data_size; i++) {1
+            for (s32 i = 0; i < max_data_size; i++) {
                 const u8 val = m_data[size_t(m_texture_data_offset + i)];
                 m_texture_data[i] = palette_colors[val];
             }
