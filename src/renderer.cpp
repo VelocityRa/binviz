@@ -152,7 +152,7 @@ void Renderer::set_texture_size(glm::ivec2 texture_size) {
 }
 
 void Renderer::set_offset(s64 offset) {
-    m_texture_data_offset = std::clamp(s64(offset), 0ll, s64(m_data.size()));
+    m_texture_data_offset = std::clamp(s64(offset), s64(0), s64(m_data.size()));
 
     is_texture_updated = false;
 }
